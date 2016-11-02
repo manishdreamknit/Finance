@@ -1,3 +1,234 @@
+	[Documentation]			This keyword to produce Scenario Dictionary Variable from Scenario Configuration file
+	...						Keyword Return Dictionary Data
+	...						Pre-requisite: N/A
+	...						Note: 		 : 
+	...						Return Type : Dictionary
+	...				  		Author  : Manisha Gadekar (Manisha.Gadekar@dealtertrack.com)
+	...						Creation Date: 16th Jun 2015
+	...						Update Date\By: NA
+
+	Log		Initial Partner Dealer Setup>>>		warn
+	Log 	${SCENARIO_FILE}
+	
+	${CONFIGUARATION_XML}		WS_CommonUtil.Read_From_File_To_String		${RESOURCE}\\Code\\Setup\\${SCENARIO_FILE}
+	${Scenario Setup} 			Create Dictionary 
+	
+	#################################################################
+	@{CONFIGUARATION_ITEMS} 	Create List				PartnerIdCB
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	# Partner Id CB
+	Set To Dictionary		${Scenario Setup}			Partner Id CB			${Data}
+	
+	Log			${Scenario Setup}	
+	
+	# Partner Dealer Id CB #
+	@{CONFIGUARATION_ITEMS} 	Create List				PartnerDealerIdCB
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Partner Dealer Id CB			${Data}
+	
+	Log			${Scenario Setup}
+	#################################################################
+	
+	# Partner Id FD #
+	@{CONFIGUARATION_ITEMS} 	Create List				PartnerIdFD
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Partner Id FD			${Data}
+	
+	Log			${Scenario Setup}
+	
+	# Partner Dealer Id FD #
+	@{CONFIGUARATION_ITEMS} 	Create List				PartnerDealerIdFD
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Partner Dealer Id FD			${Data}
+	
+	Log			${Scenario Setup}
+	#################################################################
+	
+	# Environment #
+	@{CONFIGUARATION_ITEMS} 	Create List				Environment
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Environment			${Data}
+	
+	${Environment}=		Set Variable 	${Data}
+	Log 				${Environment}
+	Set Suite Variable 	${Environment}
+	
+	Log			${Scenario Setup}
+	#################################################################
+	
+	# Login URL #
+	@{CONFIGUARATION_ITEMS} 	Create List				LoginURL
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			LoginURL			${Data}
+	
+	${LOGINURL}=		Set Variable 	${Data}
+	Log 				${LOGINURL}
+	Set Suite Variable 	${LOGINURL}
+	
+	Log			${Scenario Setup}
+	#################################################################
+	
+	# User ID #
+	@{CONFIGUARATION_ITEMS} 	Create List				User_ID
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			User_ID			${Data}
+	
+	${User_ID}=		Set Variable 	${Data}
+	Log 				${User_ID}
+	Set Suite Variable 	${User_ID}
+	
+	Log			${Scenario Setup}
+	#################################################################
+	
+	# USER_PASSWORD #
+	@{CONFIGUARATION_ITEMS} 	Create List				USER_PASSWORD
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			USER_PASSWORD			${Data}
+	
+	${USER_PASSWORD}=		Set Variable 	${Data}
+	Log 					${USER_PASSWORD}
+	Set Suite Variable 		${USER_PASSWORD}
+	
+	Log			${Scenario Setup}
+	#################################################################
+	
+	# Lender Id TPP #
+	@{CONFIGUARATION_ITEMS} 	Create List				LenderIdTPP
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Lender Id TPP			${Data}
+	
+	Log			${Scenario Setup}
+	
+	#  Dealer Id TPP #
+	@{CONFIGUARATION_ITEMS} 	Create List				DealerIdTPP
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Dealer Id TPP			${Data}
+	
+	Log			${Scenario Setup}
+	
+	#################################################################
+	# Partner Id Compliance #
+	@{CONFIGUARATION_ITEMS} 	Create List				PartnerIdCompliance
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Partner Id Compliance			${Data}
+	
+	Log			${Scenario Setup}
+	
+	# Partner Dealer Id Compliance #
+	@{CONFIGUARATION_ITEMS} 	Create List				DealerIdCompliance
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Dealer Id Compliance			${Data}
+
+	#################################################################	
+	# Partner Id TD #
+	@{CONFIGUARATION_ITEMS} 	Create List				PartnerIdTD
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Partner Id TD			${Data}
+	
+	Log			${Scenario Setup}
+	
+	# Partner Dealer Id TD #
+	@{CONFIGUARATION_ITEMS} 	Create List				PartnerDealerIdTD
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Partner Dealer Id TD			${Data}
+	
+	Log			${Scenario Setup}	
+	#################################################################
+	
+	# Splunk Details#
+	@{CONFIGUARATION_ITEMS} 	Create List				Splunk_UserID
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Splunk_UserID			${Data}
+	
+	# password #
+	@{CONFIGUARATION_ITEMS} 	Create List				Splunk_Password
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Splunk_Password			${Data}
+	
+	Log			${Scenario Setup}
+	
+	#################################################################
+	
+	# Switch Dealership #
+	@{CONFIGUARATION_ITEMS} 	Create List				SwitchDealership
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			SwitchDealership			${Data}
+	
+	Log			${Scenario Setup}
+####
+		# DealerSwitch SourceDealerID #
+	@{CONFIGUARATION_ITEMS} 	Create List				DealerSwitchSource
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Dealer Switch Source			${Data}
+	
+	Log			${Scenario Setup}
+	#################################################################
+		# DealerSwitch TargetDealerID #
+	@{CONFIGUARATION_ITEMS} 	Create List				DealerSwitchTarget
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Dealer Switch Target			${Data}
+	
+	Log			${Scenario Setup}
+	#################################################################	
+		# DealerSwitch Product Type #
+	@{CONFIGUARATION_ITEMS} 	Create List				DealerSwitchProductType
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Dealer Switch Product Type			${Data}
+	
+	Log			${Scenario Setup}
+	#################################################################	
+		# COL Dealer #
+	@{CONFIGUARATION_ITEMS} 	Create List				DealerIdCOL
+	${Data}			Return Values From Child Node		${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${Scenario Setup}			Dealer Id COL			${Data}
+	
+	Log			${Scenario Setup}	
+	#################################################################
+	
+	Log			${Scenario Setup}		warn
+	Set Suite Variable		${Scenario Setup}
+	
+	#Set base url depending on environment
+	${URL_BASE}=			Run Keyword If	'${Environment}'=='QA'		Set Variable		${URL_QA}
+	...	ELSE IF								'${Environment}'=='DEV'		Set Variable		${URL_DEV}
+	...	ELSE IF								'${Environment}'=='PROD'	Set Variable		${URL_PROD}
+	Set Suite Variable		${URL_BASE}
+	Log						URL_Base: ${URL_BASE}			WARN	
+	
+	#####################
+	# Variables
+	#####################
+	${ListZeroIndex}	Set Variable					0
+	${ScanCount}		Set Variable					7
+	${ListZeroIndex}	Convert To Integer				${ListZeroIndex}
+	${ScanCount}		Convert To Integer				${ScanCount}		
+	${PreXMLSubmit-LeadFirstRow-Dictionary}				Create Dictionary					
+	${PostXMLSubmit-LeadFirstRow-Dictionary}			Create Dictionary
+	${PreXMLSubmitLead}									Create Dictionary
+	${PostXMLSubmitScanLead}							Create Dictionary
+	${PreXMLSubmitCust}									Create Dictionary
+	${PostXMLSubmitScanCust}							Create Dictionary
+	${DictionaryOfLeadRowDataDic}						Create Dictionary
+	${DictionaryOfCustRowDataDic}						Create Dictionary
+	Set Suite Variable	${DictionaryOfLeadRowDataDic}	
+	Set Suite Variable	${DictionaryOfCustRowDataDic}	
+	Set Suite Variable	${PreXMLSubmitLead}		  		
+	Set Suite Variable	${PostXMLSubmitScanLead}
+	Set Suite Variable	${PreXMLSubmitCust}		  		
+	Set Suite Variable	${PostXMLSubmitScanLead}
+	Set Suite Variable 	${PostXMLSubmitScanCust}
+	
+	
+	Set Suite Variable	${UpdatedValueStatus}		  	${EMPTY}
+	Set Suite Variable	${ScanCount}
+	Set Suite Variable	${ListZeroIndex}
+	
+	${REF_DICT}=		Create Dictionary
+	Set Suite Variable 	${REF_DICT}
+	
+	[Return]				${Scenario Setup}
+	
+
 *** Settings ***
 Documentation		This is a resource file for DT web service related keywords
 
