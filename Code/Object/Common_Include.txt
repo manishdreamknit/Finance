@@ -1,0 +1,15 @@
+*** Settings ***
+Documentation	This is a resource file that includes Library and Resource file calls required for Test Suite.
+
+Library				Selenium2Library	#server_host=192.168.8.171	server_port=4445		
+Library           	Collections			#server_host=192.168.8.171	server_port=4445				
+Library           	String				#server_host=192.168.8.171	server_port=4445
+Library				../Utility/WS_CommonUtil.py	
+Library				../Utility/BrowserUtil.py		
+Library				../Utility/XML.py
+#Library				../Utility/VirtualKeyBoard.py
+# Library				../Utility/SFTPFileReadWrite.py
+Library				OperatingSystem
+Library				Dialogs
+Library				DateTime
+

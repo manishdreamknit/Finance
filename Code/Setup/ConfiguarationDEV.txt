@@ -1,0 +1,77 @@
+<FOLDER>
+<IN>C:\Users\e002128\FD\Phase-III\Request</IN>
+<OUT>C:\Users\e002128\FD\Phase-III\Response</OUT>
+</FOLDER>
+
+<ENVIRONMENT>
+<DEV>http://10.136.10.40</DEV>
+<QA>https://webservices.qa.dealertrack.com</QA>
+<PROD>https://webservices.dealertrack.com</PROD>
+</ENVIRONMENT>
+
+<CREDENTIALS>
+<CB:CTX>
+	<User Name>ctxfdsvc</User Name>
+	<Password>svbz5184</Password>
+</CB:CTX>
+<CB:DTS>
+	<User Name>dtswebsvc</User Name>
+	<Password>fdpwd123</Password>
+</CB:DTS>
+<CB:AJK>
+	<User Name>ajkwebsvc</User Name>
+	<Password>fdpwd123</Password>
+</CB:AJK>
+<FD:BAR>
+	<User Name>test</User Name>
+	<Password>test</Password>
+</FD:BAR>
+<FD:CTX>
+	<User Name>ctxfdsvc</User Name>
+	<Password>svbz5184</Password>
+</FD:CTX>
+<FD:DWR>
+	<User Name>devwebsvc</User Name>
+	<Password>fdpwd123</Password>
+</FD:DWR>
+<FD:MAZ>
+	<User Name>mazfdsvc</User Name>
+	<Password>fdpwd123</Password>
+</FD:MAZ>
+<FD:VPP>
+	<User Name>vservi</User Name>
+	<Password>vppfdsvc1</Password>
+</FD:VPP>
+</CREDENTIALS>
+
+<SERVICES>
+<1.0:CB-RF-No>/financedriver/devint/v1/CreditBureau/?redFlagRequest=No</1.0:CB-RF-No>
+<1.0:CB-RF-Yes>/financedriver/devint/v1/CreditBureau/?redFlagRequest=Yes</1.0:CB-RF-Yes>
+<1.1:CB-RF-No>/financedriver/devint/V1.1/CreditBureau/pullbureau?redFlagRequest=No</1.1:CB-RF-No>
+<1.1:CB-RF-No-SN>/financedriver/devint/v1.1/CreditBureau/?redFlagRequest=No</1.1:CB-RF-No-SN>
+<1.1:CB-RF-Yes>/financedriver/devint/V1.1/CreditBureau/pullbureau?redFlagRequest=Yes</1.1:CB-RF-Yes>
+<1.1:CB-RF-Yes-SN>/financedriver/devint/v1.1/CreditBureau/?redFlagRequest=Yes</1.1:CB-RF-Yes-SN>
+<1.2-1:ADFLead>/FinanceDriver/devint/v1.2/lead/custom/create</1.2-1:ADFLead>
+<1.2-1:App>/FinanceDriver/devint/V1.2/application/create</1.2-1:App>
+<1.2-1:CB-RF-No>/creditbureau/v1.2/?redFlagrequest=No</1.2-1:CB-RF-No>
+<1.2-1:CB-RF-Yes>/creditbureau/v1.2/?redFlagrequest=Yes</1.2-1:CB-RF-Yes>
+<1.2-1:DDF>http://192.168.13.42:5055/financedriver/v1/PartnerResponse/ADFPlusResponses/</1.2-1:DDF>
+<1.2-1:FDResponse>http://192.168.13.42:5055/FDResponseFiles/</1.2-1:FDResponse>
+<1.2-1:GetLeadRegular>/financedriver/devint/v1.2/lead/?partnerid=QQQ&partnerdealerid=999999&lastname=LASTNAME&leadreferencenumber=</1.2-1:GetLeadRegular>
+<1.2-1:GetNowComPdf>/financedriver/devint/v1.2/application/8888888888/partner/PPP/dealer/999999/decision/LLL</1.2-1:GetNowComPdf>
+<1.2-1:Lead>/financedriver/devint/V1.2/Lead/create</1.2-1:Lead>
+<1.2-1:LeadUpdate1>/financedriver/devint/V1.2/Lead/update</1.2-1:LeadUpdate1>
+<1.2-1:LeadUpdate2>/financeDriver/devint/V1.2/Lead/menuinfo/update</1.2-1:LeadUpdate2>
+<1.2-1:LeadUpdate3>/financeDriver/devint/V1.2/Lead/paymentinfo/update</1.2-1:LeadUpdate3>
+<1.2-1:PartnerInfo>/financedriver/v1.2/partnerInfo/getdealers</1.2-1:PartnerInfo>
+<1.2-1:Prequalify>/financedriver/devint/v1.2/applicant/prequalify</1.2-1:Prequalify>
+<1.2-1:SPLUNK>http://splunk.hq.dt.inc:8000/en-US/app/search/search#en-US/app/search/search?q=search%20APPID%20LeadReferenceNumber&sid=1439379427.33634&earliest=%40d&latest=now</1.2-1:SPLUNK>
+<1.2-1:TPP>http://dtdev2k3.hq.dealertrack.com/lender_post/barappsub.asp</1.2-1:TPP>
+</SERVICES>
+
+<SOURCE>
+<DWR>Dealerware</DWR>
+<AJK>Auto Jockey</AJK>
+<DXC>Fdd2idxc</DXC>
+<DXE>Fdd2idxe</DXE>
+</SOURCE>

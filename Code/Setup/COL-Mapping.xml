@@ -1,0 +1,151 @@
+<COL xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<ContactInformation>
+		<FirstName id="ctl00_ContentPlaceHolderMainContent_fname" required="true" type="text">PrimaryApplicant/ApplicantInfo/FirstName</FirstName>
+		<MiddleName id="ctl00_ContentPlaceHolderMainContent_mi" type="text">PrimaryApplicant/ApplicantInfo/MiddleInitial</MiddleName>
+		<LastName id="ctl00_ContentPlaceHolderMainContent_lname" required="true" type="text">PrimaryApplicant/ApplicantInfo/LastName</LastName>
+		<Suffix id="ctl00_ContentPlaceHolderMainContent_suffix" type="select">PrimaryApplicant/ApplicantInfo/Suffix</Suffix>
+		<Phone id="ctl00_ContentPlaceHolderMainContent_phone" type="text">PrimaryApplicant/ApplicantInfo/CellPhone</Phone>
+		<Email id="ctl00_ContentPlaceHolderMainContent_email" required="true" type="text" >PrimaryApplicant/ApplicantInfo/EmailAddress</Email>
+		<StreetNumber id="ctl00_ContentPlaceHolderMainContent_street_no" keyword="street_number" required="true" type="text" >PrimaryApplicant/ApplicantInfo/CurrentAddress/AddressLine1</StreetNumber>
+		<StreetName id="ctl00_ContentPlaceHolderMainContent_street_name" keyword="street_name" required="true" type="text" >PrimaryApplicant/ApplicantInfo/CurrentAddress/AddressLine1</StreetName>
+		<StreetType id="ctl00_ContentPlaceHolderMainContent_street_type" keyword="street_type" required="true" type="select" >PrimaryApplicant/ApplicantInfo/CurrentAddress/AddressLine1</StreetType>
+		<City id="ctl00_ContentPlaceHolderMainContent_city" required="true" type="text">PrimaryApplicant/ApplicantInfo/CurrentAddress/City</City>
+		<State id="ctl00_ContentPlaceHolderMainContent_state" required="true" type="select">PrimaryApplicant/ApplicantInfo/CurrentAddress/State</State>
+		<Zip id="ctl00_ContentPlaceHolderMainContent_zip" required="true" type="text">PrimaryApplicant/ApplicantInfo/CurrentAddress/ZipCode</Zip>
+	</ContactInformation>
+	<PersonalInformation>
+		<EmploymentStatus id="ctl00_ContentPlaceHolderMainContent_employ_status" keyword="make_lower" required="true" type="select">PrimaryApplicant/ApplicantInfo/CurrentEmploymentInfo/EmploymentStatus</EmploymentStatus>
+		<AnnualIncome id="ctl00_ContentPlaceHolderMainContent_income" default="1234" required="true" type="text">PrimaryApplicant/ApplicantInfo/Income/Value</AnnualIncome>
+		<TimeAtJobYears id="ctl00_ContentPlaceHolderMainContent_years" keyword="get_years" type="text">PrimaryApplicant/ApplicantInfo/CurrentEmploymentInfo/TotalMonthsEmployed</TimeAtJobYears>
+		<TimeAtJobMonths id="ctl00_ContentPlaceHolderMainContent_months" keyword="get_months" type="text">PrimaryApplicant/ApplicantInfo/CurrentEmploymentInfo/TotalMonthsEmployed</TimeAtJobMonths>
+		<SocialSecurity id="ctl00_ContentPlaceHolderMainContent_ssn" required="true" type="text">PrimaryApplicant/ApplicantInfo/SSN</SocialSecurity>
+		<DateOfBirth id="ctl00_ContentPlaceHolderMainContent_dob" keyword="dob" required="true" type="text">PrimaryApplicant/ApplicantInfo/DateOfBirth</DateOfBirth>
+	</PersonalInformation>
+	<EmploymentInformation>
+		<Employer id="ctl00_ContentPlaceHolderMainContent_employer1" required="true" type="text">PrimaryApplicant/ApplicantInfo/CurrentEmploymentInfo/EmployedBy</Employer>
+		<JobTitle id="ctl00_ContentPlaceHolderMainContent_jobtitle1" type="text">PrimaryApplicant/ApplicantInfo/CurrentEmploymentInfo/Occupation</JobTitle>
+		<WorkPhone id="ctl00_ContentPlaceHolderMainContent_workphone1" required="true" type="text">PrimaryApplicant/ApplicantInfo/CurrentEmploymentInfo/BusinessPhone</WorkPhone>	
+	</EmploymentInformation>
+	<PreviousEmploymentInformation>
+		<EmploymentStatus id="ctl00_ContentPlaceHolderMainContent_employ_status" keyword="make_lower" required="true" type="select">PrimaryApplicant/ApplicantInfo/PreviousEmploymentInfo/EmploymentStatus</EmploymentStatus>
+		<TimeAtJobYears id="ctl00_ContentPlaceHolderMainContent_years1" keyword="get_years" type="text">PrimaryApplicant/ApplicantInfo/CurrentEmploymentInfo/TotalMonthsEmployed</TimeAtJobYears>
+		<TimeAtJobMonths id="ctl00_ContentPlaceHolderMainContent_months1" keyword="get_months" type="text">PrimaryApplicant/ApplicantInfo/PreviousEmploymentInfo/TotalMonthsEmployed</TimeAtJobMonths>
+		<Employer id="ctl00_ContentPlaceHolderMainContent_employer2" required="true" type="text">PrimaryApplicant/ApplicantInfo/PreviousEmploymentInfo/EmployedBy</Employer>
+		<JobTitle id="ctl00_ContentPlaceHolderMainContent_jobtitle2" type="text">PrimaryApplicant/ApplicantInfo/PreviousEmploymentInfo/Occupation</JobTitle>
+		<WorkPhone id="ctl00_ContentPlaceHolderMainContent_workphone2" required="true" type="text">PrimaryApplicant/ApplicantInfo/PreviousEmploymentInfo/BusinessPhone</WorkPhone>	
+	</PreviousEmploymentInformation>
+	<ResidentialInformation>
+		<PrimaryResidence id="ctl00_ContentPlaceHolderMainContent_Residence" keyword="housing_status" required="true" type="select">PrimaryApplicant/ApplicantInfo/HousingStatus</PrimaryResidence>
+		<TimeAtAddressYears id="ctl00_ContentPlaceHolderMainContent_years_at_addr" required="true" keyword="get_years" type="text">PrimaryApplicant/ApplicantInfo/TotalMonthsAtAddress</TimeAtAddressYears>
+		<TimeAtAddressMonths id="ctl00_ContentPlaceHolderMainContent_months_at_addr" required="true" keyword="get_months" type="text">PrimaryApplicant/ApplicantInfo/TotalMonthsAtAddress</TimeAtAddressMonths>
+		<MortgageOrRent id="ctl00_ContentPlaceHolderMainContent_mtg_rent" type="text">PrimaryApplicant/ApplicantInfo/MortgageOrRent</MortgageOrRent>	
+	</ResidentialInformation>
+	<PreviousResidentialInformation>
+		<StreetNumber id="ctl00_ContentPlaceHolderMainContent_street_no" keyword="street_number" required="true" type="text">PrimaryApplicant/ApplicantInfo/PreviousAddress/AddressLine1</StreetNumber>
+		<StreetName id="ctl00_ContentPlaceHolderMainContent_street_name" keyword="street_name" required="true" type="text">PrimaryApplicant/ApplicantInfo/PreviousAddress/AddressLine1</StreetName>
+		<StreetType id="ctl00_ContentPlaceHolderMainContent_street_type" keyword="street_type" required="true" type="select">PrimaryApplicant/ApplicantInfo/PreviousAddress/AddressLine1</StreetType>
+		<City id="ctl00_ContentPlaceHolderMainContent_city" required="true" type="text">PrimaryApplicant/ApplicantInfo/PreviousAddress/City</City>
+		<State id="ctl00_ContentPlaceHolderMainContent_state" required="true" type="select">PrimaryApplicant/ApplicantInfo/PreviousAddress/State</State>
+		<Zip id="ctl00_ContentPlaceHolderMainContent_zip" required="true" type="text">PrimaryApplicant/ApplicantInfo/PreviousAddress/ZipCode</Zip>
+	</PreviousResidentialInformation>	
+	<LoanType>
+		<FinanceType type="radio" name="ctl00$ContentPlaceHolderMainContent$buy_lease" keyword="finance_method" xpath="FinanceMethod">FinanceMethod</FinanceType>
+		<!--	<Buy id="ctl00_ContentPlaceHolderMainContent_buy" type="radio">Buy</Buy>
+			<Lease id="ctl00_ContentPlaceHolderMainContent_lease" type="radio">Lease</Lease> -->
+	</LoanType>
+	<LoanInformation>
+		<AmountFinancing id="ctl00_ContentPlaceHolderMainContent_amt_financing" type="text">ProductInfo/CashSellingPrice</AmountFinancing>
+		<Term id="ctl00_ContentPlaceHolderMainContent_term" type="select">ProductInfo/Term</Term>
+		<CashDown id="ctl00_ContentPlaceHolderMainContent_cash_down" type="text">ProductInfo/CashDown</CashDown>
+		<MonthlyPayment id="ctl00_ContentPlaceHolderMainContent_monthly_pmt" type="text">ProductInfo/EstimatedPayment</MonthlyPayment>
+
+	</LoanInformation>
+	<TradeIn name="ctl00$ContentPlaceHolderMainContent$trade" type="radio" keyword="trade_in">TradeInVehicleInfo</TradeIn>
+	<TradeInInformation>
+		<!--
+		<TradeIn name="ctl00$ContentPlaceHolderMainContent$trade" type="radio" keyword="trade_in">TradeInVehicleInfo</TradeIn> -->
+		<Year id="ctl00_ContentPlaceHolderMainContent_year" type="select">TradeInVehicleInfo/Year</Year>
+		<Make id="ctl00_ContentPlaceHolderMainContent_make" keyword="make_upper" type="select">TradeInVehicleInfo/Make</Make>
+		<Model id="ctl00_ContentPlaceHolderMainContent_model" keyword="make_upper" type="select">TradeInVehicleInfo/Model</Model>
+		<!--  <VIN id="ctl00_ContentPlaceHolderMainContent_vin" type="text">TradeInVehicleInfo/</VIN>
+		<Odometer id="ctl00_ContentPlaceHolderMainContent_odometer" type="text"></Odometer> -->		
+	</TradeInInformation>
+	<VehicleInfo name="ctl00$ContentPlaceHolderMainContent$vehicle" type="radio" keyword="vehicle_in">VehicleInfo</VehicleInfo>
+	<VehicleInformation>
+		<!--
+		<VehicleInfo type="radio"></VehicleInfo> -->
+		<PurchaseType name="ctl00$ContentPlaceHolderMainContent$pt" keyword="purchase_type" type="radio">VehicleInfo/VehicleCondition</PurchaseType>
+		<Year id="ctl00_ContentPlaceHolderMainContent_veh_year" type="select">VehicleInfo/Year</Year>
+		<Make id="ctl00_ContentPlaceHolderMainContent_veh_make" keyword="make_upper"  type="select">VehicleInfo/Make</Make>
+		<Model id="ctl00_ContentPlaceHolderMainContent_veh_model" keyword="make_upper" type="select">VehicleInfo/Model</Model>
+		<VIN id="ctl00_ContentPlaceHolderMainContent_veh_vin" type="text">VehicleInfo/VIN</VIN>	
+		<StockNumber id="ctl00_ContentPlaceHolderMainContent_veh_stock_num" type="text">VehicleInfo/StockNumber</StockNumber>
+	</VehicleInformation>
+	<CoApplicantIn name="ctl00$ContentPlaceHolderMainContent$apply" type="radio" keyword="coapp_in">CoApplicant</CoApplicantIn>
+	<CoApplicant>
+		<Information>
+			<Relationship id="ctl00_ContentPlaceHolderMainContent_relationship" keyword="relationship" type="select">CoApplicant/Relationship</Relationship>
+			<FirstName id="ctl00_ContentPlaceHolderMainContent_coapp_fname" required="true" type="text">CoApplicant/ApplicantInfo/FirstName</FirstName>
+			<MiddleName id="ctl00_ContentPlaceHolderMainContent_coapp_mi" type="text">CoApplicant/ApplicantInfo/MiddleInitial</MiddleName>
+			<LastName id="ctl00_ContentPlaceHolderMainContent_coapp_lname" required="true" type="text">CoApplicant/ApplicantInfo/LastName</LastName>
+			<Suffix id="ctl00_ContentPlaceHolderMainContent_coapp_suffix" type="select">CoApplicant/ApplicantInfo/Suffix</Suffix>
+			<Phone id="ctl00_ContentPlaceHolderMainContent_coapp_phone" type="text">CoApplicant/ApplicantInfo/CellPhone</Phone>
+			<Email id="ctl00_ContentPlaceHolderMainContent_coapp_email" required="true" type="text" >CoApplicant/ApplicantInfo/EmailAddress</Email>
+			<DateOfBirth id="ctl00_ContentPlaceHolderMainContent_coapp_dob" keyword="dob" required="true" type="text">CoApplicant/ApplicantInfo/DateOfBirth</DateOfBirth>
+			<StreetNumber id="ctl00_ContentPlaceHolderMainContent_coapp_street_no" keyword="street_number" required="true" type="text" >CoApplicant/ApplicantInfo/CurrentAddress/AddressLine1</StreetNumber>
+			<StreetName id="ctl00_ContentPlaceHolderMainContent_coapp_street_name" keyword="street_name" required="true" type="text" >CoApplicant/ApplicantInfo/CurrentAddress/AddressLine1</StreetName>
+			<StreetType id="ctl00_ContentPlaceHolderMainContent_coapp_street_type" keyword="street_type" required="true" type="select" >CoApplicant/ApplicantInfo/CurrentAddress/AddressLine1</StreetType>
+			<City id="ctl00_ContentPlaceHolderMainContent_coapp_city" required="true" type="text">CoApplicant/ApplicantInfo/CurrentAddress/City</City>
+			<State id="ctl00_ContentPlaceHolderMainContent_coapp_state" required="true" type="select">CoApplicant/ApplicantInfo/CurrentAddress/State</State>
+			<Zip id="ctl00_ContentPlaceHolderMainContent_coapp_zip" required="true" type="text">CoApplicant/ApplicantInfo/CurrentAddress/ZipCode</Zip>
+		</Information>
+		<ResidentialInformation>
+			<PrimaryResidence id="ctl00_ContentPlaceHolderMainContent_co_app_Residence" keyword="housing_status" required="true" type="select">CoApplicant/ApplicantInfo/HousingStatus</PrimaryResidence>
+			<TimeAtAddressYears id="ctl00_ContentPlaceHolderMainContent_co_app_years" required="true" keyword="get_years" type="text">CoApplicant/ApplicantInfo/TotalMonthsAtAddress</TimeAtAddressYears>
+			<TimeAtAddressMonths id="ctl00_ContentPlaceHolderMainContent_co_app_months" required="true" keyword="get_months" type="text">CoApplicant/ApplicantInfo/TotalMonthsAtAddress</TimeAtAddressMonths>
+			<MortgageOrRent id="ctl00_ContentPlaceHolderMainContent_co_app_mtg_rent" type="text">CoApplicant/ApplicantInfo/MortgageOrRent</MortgageOrRent>	
+		</ResidentialInformation>
+		<PreviousAddress>
+			<StreetNumber id="ctl00_ContentPlaceHolderMainContent_coapp_prev_street_no" keyword="street_number" required="true" type="text">CoApplicant/ApplicantInfo/PreviousAddress/AddressLine1</StreetNumber>
+			<StreetName id="ctl00_ContentPlaceHolderMainContent_coapp_prev_street_name" keyword="street_name" required="true" type="text">CoApplicant/ApplicantInfo/PreviousAddress/AddressLine1</StreetName>
+			<StreetType id="ctl00_ContentPlaceHolderMainContent_coapp_prev_street_type" keyword="street_type" required="true" type="select">CoApplicant/ApplicantInfo/PreviousAddress/AddressLine1</StreetType>
+			<City id="ctl00_ContentPlaceHolderMainContent_coapp_prev_city" required="true" type="text">CoApplicant/ApplicantInfo/PreviousAddress/City</City>
+			<State id="ctl00_ContentPlaceHolderMainContent_coapp_prev_state" required="true" type="select">CoApplicant/ApplicantInfo/PreviousAddress/State</State>
+			<Zip id="ctl00_ContentPlaceHolderMainContent_coapp_prev_zip" required="true" type="text">CoApplicant/ApplicantInfo/PreviousAddress/ZipCode</Zip>
+		</PreviousAddress>
+		<PersonalInformation>
+			<EmploymentStatus id="ctl00_ContentPlaceHolderMainContent_coapp_employ_status" keyword="make_lower" required="true" type="select">CoApplicant/ApplicantInfo/CurrentEmploymentInfo/EmploymentStatus</EmploymentStatus>
+			<AnnualIncome id="ctl00_ContentPlaceHolderMainContent_coapp_income" default="1234" required="true" type="text">CoApplicant/ApplicantInfo/Income/Value</AnnualIncome>
+			<SocialSecurity id="ctl00_ContentPlaceHolderMainContent_coapp_ssn" required="true" type="text">CoApplicant/ApplicantInfo/SSN</SocialSecurity>
+		</PersonalInformation>
+		<EmploymentInformation>
+			<TimeAtJobYears id="ctl00_ContentPlaceHolderMainContent_coapp_employ_years" keyword="get_years" type="text">CoApplicant/ApplicantInfo/CurrentEmploymentInfo/TotalMonthsEmployed</TimeAtJobYears>
+			<TimeAtJobMonths id="ctl00_ContentPlaceHolderMainContent_coapp_employ_months" keyword="get_months" type="text">CoApplicant/ApplicantInfo/PreviousEmploymentInfo/TotalMonthsEmployed</TimeAtJobMonths>
+			<Employer id="ctl00_ContentPlaceHolderMainContent_coapp_employer" required="true" type="text">CoApplicant/ApplicantInfo/PreviousEmploymentInfo/EmployedBy</Employer>
+			<JobTitle id="ctl00_ContentPlaceHolderMainContent_coapp_jobtitle" type="text">CoApplicant/ApplicantInfo/PreviousEmploymentInfo/Occupation</JobTitle>
+			<WorkPhone id="ctl00_ContentPlaceHolderMainContent_coapp_workphone" required="true" type="text">CoApplicant/ApplicantInfo/PreviousEmploymentInfo/BusinessPhone</WorkPhone>	
+		</EmploymentInformation>
+		<PreviousEmploymentInformation>
+			<EmploymentStatus id="ctl00_ContentPlaceHolderMainContent_coapp_prev_employ_status" keyword="make_lower" required="true" type="select">CoApplicant/ApplicantInfo/CurrentEmploymentInfo/EmploymentStatus</EmploymentStatus>
+			<TimeAtJobYears id="ctl00_ContentPlaceHolderMainContent_coapp_prev_years_at_job" keyword="get_years" type="text">CoApplicant/ApplicantInfo/CurrentEmploymentInfo/TotalMonthsEmployed</TimeAtJobYears>
+			<TimeAtJobMonths id="ctl00_ContentPlaceHolderMainContent_coapp_prev_months_at_job" keyword="get_months" type="text">CoApplicant/ApplicantInfo/PreviousEmploymentInfo/TotalMonthsEmployed</TimeAtJobMonths>
+			<Employer id="ctl00_ContentPlaceHolderMainContent_coapp_prev_employer" required="true" type="text">CoApplicant/ApplicantInfo/PreviousEmploymentInfo/EmployedBy</Employer>
+			<JobTitle id="ctl00_ContentPlaceHolderMainContent_coapp_prev_jobtitle" type="text">CoApplicant/ApplicantInfo/PreviousEmploymentInfo/Occupation</JobTitle>
+			<WorkPhone id="ctl00_ContentPlaceHolderMainContent_coapp_prev_workphone" required="true" type="text">CoApplicant/ApplicantInfo/PreviousEmploymentInfo/BusinessPhone</WorkPhone>	
+		</PreviousEmploymentInformation>
+		
+	</CoApplicant>
+	<Logs>
+		<FirstName id="First Name">PrimaryApplicant/ApplicantInfo/FirstName</FirstName>
+		<LastName id="Last Name">PrimaryApplicant/ApplicantInfo/LastName</LastName>
+		<CoAPPFirstName id="CoApp First Name">CoApplicant/ApplicantInfo/FirstName</CoAPPFirstName>
+		<CoAPPLastName id="CoApp Last Name">CoApplicant/ApplicantInfo/LastName</CoAPPLastName>
+	</Logs>
+	<VehicleLogs>
+		<Year id="Year">VehicleInfo/Year</Year>
+		<Make id="Make" >VehicleInfo/Make</Make>
+		<Model id="Model">VehicleInfo/Model</Model>
+
+	</VehicleLogs>
+	
+</COL>

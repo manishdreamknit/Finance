@@ -1,0 +1,2152 @@
+*** Settings ***
+Documentation  This is a resource file for DT web service related keywords
+
+#Resource				PD_Include.txt
+
+*** Variables ***
+${TOTALROWS}        	${EMPTY}	# variable to store total number of rows in excel file
+${ROW}          		${EMPTY}	# counter to iterate through excel rows
+${EXECUTE}        		${EMPTY}	# variable to store value of execute flag 
+${REQUEST}				${EMPTY}	# variable to hold request XML string
+# ${RESPONSECODE}			${EMPTY}	# variable to hold response code
+# ${RESPONSETEXT}			${EMPTY}	# variable to hold response text
+# ${ERRORTEXT}			${EMPTY}	# variable to hold response error text
+${VALIDATIONRESULT}		${EMPTY}	# variable to hold result of validation
+${EXCELVAL}				${EMPTY}	# variable to hold value read from excel
+${COLNO}				${EMPTY}	# variable to store column number
+${ROOT}					${EMPTY}	# variable to store root node of parsed xml
+${COL}					${EMPTY}	# variable used as counter to iterate through columns
+${RESULT}				${EMPTY}	# variable to store result of validation		
+@{NODELIST}				${EMPTY}	# List to store nodes of specific tag
+${ATTR}					${EMPTY}	# variable to store attribute of root node	
+${ATTR3}				${EMPTY}	# variable to store attribute of node3
+${ATTR5}				${EMPTY}	# variable to store attribute of node5
+${NODECOUNT}			${EMPTY}	# variable to store number of nodes found of given node name
+${RESOURCE}	
+# ${GRID}					False		# variable being used as Flag to decide if GRID (e.g. Jenkins) or stand alone execution should initiate
+${Current_User}			
+
+*** Keywords ***
+
+########################################################################################################################
+Test Setup - Set Resource Variable
+	[Documentation]			To sett Resource variable for Test suite
+	[Arguments]				${TS_FILENAME}
+	${SCRIPT_DIR}			Get Current Working Directory		${TS_FILENAME}	
+	${RESOURCE}				Set Variable						${SCRIPT_DIR}
+	${RESOURCE}				WS_CommonUtil.trimFromRight			${RESOURCE}				1
+	Set Suite Variable		${RESOURCE}	
+	Log						Resource : ${RESOURCE}				WARN	
+	
+########################################################################################################################
+Web Service Setup 	[Arguments]		${ENV}		${LOCATION} 	${CREDENTIAL_TYPE}		${PARTNERID}
+	[Documentation]			This keyword to produce Configuaration Dictionary Variable from Configuartaion file
+	...						Keyword Return Dictionary Data
+	...						Pre-requisite: N/A
+	...						Note: 		 : 
+	...						Return Type : Dictionary
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 27th Nov 2013
+	...						Update Date\By: N/A
+	
+	Log 	${ENV}
+	Log 	${LOCATION} 
+	Log 	${CREDENTIAL_TYPE}	
+	Log 	${PARTNERID}
+
+	${CONFIGUARATION_XML}		WS_CommonUtil.Read_From_File_To_String		${RESOURCE}\\Code\\Setup\\Configuaration.txt
+	${WS Setup} 			Create Dictionary 		Url			\
+	
+	#URL#
+	@{CONFIGUARATION_ITEMS} 	Create List							ENVIRONMENT		${ENV}
+	${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Log		${Data}
+	#Log				WS Environment : \t${Data}		Warn
+	Set To Dictionary		${WS Setup}			Url			${Data}
+	
+	@{CONFIGUARATION_ITEMS} 	Create List									SERVICES		${LOCATION}
+	${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	#Log				Service Location : \t${Data}		Warn
+	Log		${Data}
+	Set To Dictionary		${WS Setup}			Service			${Data}
+	
+	#User Name#
+	@{CONFIGUARATION_ITEMS} 	Create List									CREDENTIALS		${CREDENTIAL_TYPE}	User Name
+	${Data}			Return Values From Child Node	${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${WS Setup}			User Name		${Data}
+	#Password#
+	@{CONFIGUARATION_ITEMS} 	Create List									CREDENTIALS		${CREDENTIAL_TYPE}	Password
+	${Data}			Return Values From Child Node	${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${WS Setup}			Password		${Data}		
+	
+	#Source#
+	@{CONFIGUARATION_ITEMS} 	Create List									SOURCE		${PARTNERID}	
+	${Data}			Return Values From Child Node	${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${WS Setup}			Source		${Data}		
+	
+	Set Suite Variable		${WS Setup}
+	[Return]				${WS Setup}
+
+############################################################################################################################################
+Web Service Setup2 	[Arguments]		${Service} 		${PartnerType}		${PARTNERID}		#returns dictionary with ID, password, and endpoint
+	[Documentation]			This keyword to produce Configuaration Dictionary Variable from Configuartaion file
+	...						Keyword Return Dictionary Data
+	...						Pre-requisite: N/A
+	...						Note: 		 : 
+	...						Return Type : Dictionary
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 27th Nov 2013
+	...						Update Date\By: N/A
+	
+	WriteToFile				${logfile}		Y			Web Service Setup2>>>
+	${Environment}=			Get From Dictionary			${Scenario Setup}			Environment
+	# WriteToFile				${logfile}		Y			Environment=${Environment} 	
+	# WriteToFile				${logfile}		Y			Service=${Service} 
+	# WriteToFile				${logfile}		Y			PartnerType=${PartnerType}	#FD, CB, TD, etc.
+	# WriteToFile				${logfile}		Y			PartnerID=${PARTNERID}	
+	${CREDENTIAL_TYPE}=		Catenate		SEPARATOR=:	${PartnerType}				${PARTNERID}
+	# WriteToFile				${logfile}		Y			CredentialType=${CREDENTIAL_TYPE}
+	
+	${ConfigFile}=			Run Keyword If			'${Environment}'== 'DEV'		Set Variable		ConfiguarationDEV.txt
+	...	ELSE IF										'${Environment}'== 'PROD'		Set Variable		ConfiguarationPROD.txt
+	...	ELSE																		Set Variable		ConfiguarationQA.txt	
+	# WriteToFile				${logfile}			Y									ConfigFile=${ConfigFile}		
+	${CONFIGUARATION_XML}		WS_CommonUtil.Read_From_File_To_String				${RESOURCE}\\Code\\Setup\\${ConfigFile}
+	${WS Setup} 			Create Dictionary 		Url			\
+	
+	#URL#
+	@{CONFIGUARATION_ITEMS} 	Create List							ENVIRONMENT		${Environment}
+	${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Log		${Data}
+	#Log				WS Environment : \t${Data}		Warn
+	Set To Dictionary		${WS Setup}			Url			${Data}
+	
+	@{CONFIGUARATION_ITEMS} 	Create List									SERVICES		${Service}
+	${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	#Log				Service Location : \t${Data}		Warn
+	Log		${Data}
+	Set To Dictionary		${WS Setup}			Service			${Data}
+	
+	#User Name#
+	@{CONFIGUARATION_ITEMS} 	Create List									CREDENTIALS		${CREDENTIAL_TYPE}	User Name
+	${Data}			Return Values From Child Node	${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${WS Setup}			User Name		${Data}
+	#Password#
+	@{CONFIGUARATION_ITEMS} 	Create List									CREDENTIALS		${CREDENTIAL_TYPE}	Password
+	${Data}			Return Values From Child Node	${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${WS Setup}			Password		${Data}		
+	
+	#Source#
+	@{CONFIGUARATION_ITEMS} 	Create List									SOURCE		${PARTNERID}	
+	${Data}			Return Values From Child Node	${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	Set To Dictionary		${WS Setup}			Source		${Data}		
+	
+	# Log 					Web Service Setup=${WS Setup}
+	WriteToFile				${logfile}		N			Web Service Setup=${WS Setup}
+	
+	Set Suite Variable		${WS Setup}
+	[Return]				${WS Setup}
+
+########################################################################################################################	
+Set Start Time
+	${TC_StartTime}			Get Time			epoch
+	Set Global Variable		${TC_StartTime}
+	
+########################################################################################################################
+SetUpFDLogging
+	
+	${TimeStamp}=				Run Keyword				TimeStamp
+	${Temp}=					Replace String 			${TEST NAME}		:	-
+	${LogFile}=					Set Variable			${RESOURCE}\\Other\\Logs\\TextLogs\\${TimeStamp}-${Environment}-${SUITE NAME}-${Temp}-Log.txt		#QQQ
+	${ErrorLog}=				Set Variable			${RESOURCE}\\Other\\Logs\\TextLogs\\${TimeStamp}-${Environment}-${SUITE NAME}-${Temp}-Errorlog.txt	#QQQ		
+	Set Global Variable			${LogFile}
+	Set Global Variable			${ErrorLog}	
+	${ScreenshotLocation}=		Set Variable			${RESOURCE}\\Other\\Screenshots	
+	Set Screenshot Directory	${ScreenshotLocation}	true		#persist=true
+	WriteToFile					${LogFile}				Y			-------------------------------------------------
+	WriteToFile					${LogFile}				Y			Environment=${Environment}	
+	WriteToFile					${LogFile}				Y			SuiteName=${SUITE NAME}	
+	WriteToFile					${logfile}				Y			ScreenshotLocation=${ScreenshotLocation}	
+	WriteToFile					${LogFile}				Y			-------------------------------------------------	
+
+Login
+    [Documentation]      This keyword will login at QA site with the credentials provided and also verifies the successful login. 
+    
+	Run Keyword If		'${GRID}'!='True'	Disable IE Security Settings
+	
+	WriteToFile			${logfile}				Y					Login>>>
+	WriteToFile			${logfile}				Y					GRID=${GRID}
+	WriteToFile			${logfile}				Y					BROWSER=${BROWSER}	
+	
+	${BR}		Run Keyword If				'${GRID}'=='True'					Open Browser  ${LOGINURL}  ${BROWSER}	alias=main	remote_url=http://${SELENIUM_HOST}:${SELENIUM_PORT}/wd/hub		desired_capabilities=ignoreProtectedModeSettings:True
+	...			ELSE															Open Browser  ${LOGINURL}  ${BROWSER}
+	
+	Set Suite Variable                            ${BR}
+	###################################################################
+	#Patch added to resolve the additional security system pop-up(NH) #
+	###################################################################
+	Maximize Browser Window
+	####### Start - Added on 15 Dec 2014 to Handle Login UI change - Sanjay Dubey
+	${Login_Button}		Set Variable	//div[@class='btn header-btn-blue2 pull-right white login-bt']
+	${EXEC_STATUS}	Run Keyword And Return Status	Wait Until Keyword Succeeds    20S      5S       Page Should Contain Element 		${Login_Button}
+	Run Keyword If		${EXEC_STATUS}==True	Press Key	${Login_Button}		\\13
+	 :FOR      ${Index}        IN RANGE	1	5
+	 \	${LoginPage_Exists}		Run Keyword And Return Status	Wait Until Keyword Succeeds    30S      5S	Title Should Be    ${LOGINPAGE}
+	 \	Run Keyword If		${LoginPage_Exists}==True	Exit For Loop
+	 \	Run Keyword If		${LoginPage_Exists}==False and ${EXEC_STATUS}==True		Press Key	${Login_Button}		\\13
+	 # \	Sleep	2s
+	####### End - Added on 15 Dec 2014 to Handle Login UI change
+	
+	
+	${EXEC_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds    60S          5S        Page Should Contain Element 		${LOGIN_EDIT} 		#//ul[@class='megamenu']//a[@id='pageheader_0_headermenu_0__rptMenu__lnkSection_0']
+	#Perform Keyboard Action ENTER
+	# Sleep                     5s
+	###################################################################
+	#Set Browser Implicit Wait                             		10s
+	# For IE Browser, change the Zoom to 100%
+	Run Keyword If                 '${BROWSER}'=='ie' or '${BROWSER}'=='Internet Explorer'   Execute JavaScript      document.body.style.zoom="100%"
+	Maximize Browser Window
+	Run Keyword and continue on failure                      Title Should Be    ${LOGINPAGE}
+	Input Text                                               ${LOGIN_EDIT}      ${USER_ID}
+	Input Password                                           ${PASSWORD_EDIT}   ${USER_PASSWORD}	
+		  #************************
+          #  Perform Action
+          #************************    
+		  Run Keyword If                 	'${BROWSER}'=='ff'       Click Element                     //input[@id='_login']
+		  ...								ELSE					 Press Key                         ${LOGIN_BTN}                  \\13       
+          #************************
+          #  Confirm Action
+          #************************    
+		  :FOR      ${Index}        IN RANGE	1	5
+		  \							Unselect Frame
+          \                         ${FrameDisplayStatus}			Run Keyword And Return Status	Wait Until Keyword Succeeds		40s		5s	Page Should Contain Element		//iframe[@id='iFrm']
+          \                         Run Keyword If    				${FrameDisplayStatus}==True     Exit For Loop
+          \                         ${FrameDisplayStatus}           Run Keyword And Return Status	Page Should Contain Element	   //input[@id='_login']
+		  \							Run Keyword If                 ('${BROWSER}'=='ff') and (${FrameDisplayStatus}==True)         Click Element                     //input[@id='_login']
+		  \							Run Keyword If                 ('${BROWSER}'!='ff') and (${FrameDisplayStatus}==True)         Press Key                     //input[@id='_login']		\\13
+		Unselect Frame
+		Select Frame                iFrm
+		${FrameDisplayStatus}		Run Keyword And Return Status	Wait Until Keyword Succeeds	40s	2s	Page Should Contain Element	//frame[@name='nav']
+		${NavFrameSelected}		Run Keyword and Return Status	Select Frame                nav		
+		
+		:FOR      ${Index}        IN RANGE	1	5
+		\	Run Keyword If		${NavFrameSelected}==True	Exit For Loop
+		\	Unselect Frame
+		\	Wait Until Page Contains Element	//iframe[@id='iFrm']	20
+		\	Select Frame	//iframe[@id='iFrm']
+		\	Wait Until Page Contains Element	//frame[@name='nav']	20
+		\	${NavFrameSelected}		Run Keyword and Return Status	Select Frame	//frame[@name='nav']
+		
+		${WinMajorComponent}		Set Variable					//td[@id='tabAppTD']/*[@id='tabAppA']		
+		${WinDisplayStatus}			Run Keyword And Return Status	Wait Until Keyword Succeeds	40s	2s	Page Should Contain Element	${WinMajorComponent}
+		Log							Major Component Display In Classic Main Page Status:\t${WinDisplayStatus}						
+		${Title}					Get Title
+		${TitleStatus}				Run Keyword And Return Status	Should Be Equal As Strings	${Title}							Dealertrack		
+		Log							Title Of Classic Site Compare Status\t${TitleStatus}\n\tExpected\tDealertrack\n\tActual\t${Title}	
+		Unselect Frame		
+
+Login2
+    [Documentation]      This keyword will login at QA site with the credentials provided and also verifies the successful login. 
+    
+	WriteToFile			${logfile}				Y						Login2>>>
+	WriteToFile			${logfile}				Y						GRID=${GRID}	
+	WriteToFile			${logfile}				Y						BROWSER=${BROWSER}
+	WriteToFile			${logfile}				Y						LOGINURL=${LOGINURL}	
+	
+	${BR}				Run Keyword If			'${GRID}'=='True'		Open Browser  ${LOGINURL}  ${BROWSER}	alias=main	remote_url=http://${SELENIUM_HOST}:${SELENIUM_PORT}/wd/hub		desired_capabilities=ignoreProtectedModeSettings:True
+	...					ELSE											Open Browser  ${LOGINURL}  ${BROWSER}	
+		
+	Maximize Browser Window
+	
+	#handle the DT 'generic' home page prior to login
+	${Login_Button}		Set Variable	//div[@class='btn header-btn-blue2 pull-right white login-bt']
+	${EXEC_STATUS}	Run Keyword And Return Status	Wait Until Keyword Succeeds    20S      5S       Page Should Contain Element 		${Login_Button}
+	Run Keyword If		${EXEC_STATUS}==True	Click Element	${Login_Button}
+	:FOR      ${Index}        IN RANGE	1	5
+	\	${LoginPage_Exists}		Run Keyword And Return Status		Wait Until Keyword Succeeds		30S      5S		Title Should Be		${LOGINPAGE}
+	\	Run Keyword If			${LoginPage_Exists}==True			Exit For Loop
+	\	Run Keyword If			${LoginPage_Exists}==False and ${EXEC_STATUS}==True					Click Element	${Login_Button}	
+	
+	Input Text					//*[@id="login"]/div[1]/input		${USER_ID}		
+	Input Password				//*[@id="login"]/div[2]/input[2]	${USER_PASSWORD}		
+	Click Button				//*[@id="login"]/input[6]		
+	
+Send Request With Request XML Finance Driver	[Arguments]		${URL}	${SOAP_ACTION}	${XML_REQUEST} 	${USERNAME}	 ${PASSWORD}			
+	[Documentation]			This keyword is common for all web services and used to send request for given Request XML.
+	
+	${RESPONSECODE}			${ERRORTEXT}	${RESPONSETEXT}=		Run Keyword If		${GRID}==False		WS_CommonUtil.Send_Request_WithRequestXML_FD       ${WS_URL}	${SOAP_ACTION}	${XML_REQUEST}		${USERNAME}		${PASSWORD}		${EMPTY}	#${RESOURCE}\\WebService
+	...		ELSE		WS_CommonUtil.Send_Request_WithRequestXML_FD       ${WS_URL}	${SOAP_ACTION}	${XML_REQUEST}		${USERNAME}		${PASSWORD}		${EMPTY}	#${RESOURCE}/Other/WebService
+	[Return]				${RESPONSECODE}			${ERRORTEXT}	${RESPONSETEXT}
+
+Send Request With Request XML Trade Driver	[Arguments]		${URL}	${SOAP_ACTION}	${XML_REQUEST} 	${USERNAME}	 ${PASSWORD}			
+	[Documentation]			This keyword is common for TDLead web service and used to send request for given Request XML.
+	
+	${RESPONSECODE}			${ERRORTEXT}	${RESPONSETEXT}=		Run Keyword If		${GRID}==False		WS_CommonUtil.Send_Request_WithRequestXML_TD       ${WS_URL}	${SOAP_ACTION}	${XML_REQUEST}		${USERNAME}		${PASSWORD}		${EMPTY}	#${RESOURCE}\\WebService
+	...		ELSE		WS_CommonUtil.Send_Request_WithRequestXML_FD       ${WS_URL}	${SOAP_ACTION}	${XML_REQUEST}		${USERNAME}		${PASSWORD}		${EMPTY}	#${RESOURCE}/Other/WebService
+	[Return]				${RESPONSECODE}			${ERRORTEXT}	${RESPONSETEXT}
+
+Send Request With Request Json Trade Driver	[Arguments]		${URL}		${XML_REQUEST} 	${USERNAME}	 ${PASSWORD}			
+	[Documentation]			This keyword is used to submit TD request
+	
+	${RESPONSECODE}			${RESPONSETEXT}=		Run Keyword If		${GRID}==False		WS_CommonUtil.SendJsonRequest       ${WS_URL}		${XML_REQUEST}		${USERNAME}		${PASSWORD}		
+	...		ELSE		WS_CommonUtil.SendJsonRequest       ${WS_URL}	${XML_REQUEST}		${USERNAME}		${PASSWORD}		
+	[Return]				${RESPONSECODE}			${RESPONSETEXT}	
+	
+Get Current Date
+	[Documentation]			This keyword is used to return current date
+	${YYYY}		${MM}		${DD}=		Get Time			year,month,day
+	${DATESTR}=				Catenate		SEPARATOR=/			${MM}		${DD}		${YYYY}
+	#Set Test Variable		${DATESTR}
+	[Return]				${DATESTR}
+	
+Select A Radio Button		[Arguments]			${ELEMENT_ID}
+	[Documentation]			This keyword selects the  radio buttonidentified by ${ELEMENT_ID}
+	Execute Javascript			window.document.getElementById('${ELEMENT_ID}').checked = true;
+	Sleep 						1s
+
+Select A Checkbox			[Arguments]		${CHECKBOX_ID}
+	[Documentation]			This keyword check the  Checkbox input identified by ${ELEMENT_ID}						
+							
+							${STATUS}		Wait Until Checkbox Display					${CHECKBOX_ID}						10			2
+							#Log				Check Box Display Loop Result : ${STATUS}	WARN
+							${SCAN}				Set Variable			0
+							:For	${LOOP}		IN RANGE	1			5							
+							\	Execute Javascript		window.document.getElementById('${CHECKBOX_ID}').checked = true;  #ChkActiveEventHandler();
+							\	Sleep				1s
+							\ 	${STATUS}			Run Keyword And Return Status		Run Keyword And Continue On Failure			Checkbox Should Be Selected			${CHECKBOX_ID}
+							\   ${SCAN}				Evaluate							${SCAN} + 1
+							\ 						Run Keyword If						'${STATUS}'=='True'							Exit For Loop
+							Execute Javascript  	document.getElementById('${CHECKBOX_ID}').onclick='ChkActiveEventHandler();';
+							#Log						Checkbox Selection Status : ${STATUS} Scan Count : ${SCAN} 		WARN
+						    [Return]					${STATUS}
+						   
+UnSelect A Checkbox		[Arguments]		${CHECKBOX_ID}
+	[Documentation]			This keyword to uncheck the  Checkbox input identified by ${ELEMENT_ID}						
+							
+							${STATUS}		Wait Until Checkbox Display					${CHECKBOX_ID}						10			2
+							#Log				Check Box Display Loop Result : ${STATUS}	WARN
+							${SCAN}				Set Variable			0
+							:For	${LOOP}		IN RANGE	1			5							
+							\	Execute Javascript	window.document.getElementById('${CHECKBOX_ID}').checked = false;
+							\	Sleep				1s
+							\ 	${STATUS}			Run Keyword And Return Status		Run Keyword And Continue On Failure			Checkbox Should Not Be Selected			${CHECKBOX_ID}
+							\   ${SCAN}				Evaluate							${SCAN} + 1
+							\ 						Run Keyword If						'${STATUS}'=='True'							Exit For Loop
+							Execute Javascript  	document.getElementById('${CHECKBOX_ID}').onclick='ChkActiveEventHandler();';
+							#Log						Checkbox Un-selection Status : ${STATUS} Scan Count : ${SCAN} 		WARN
+						    [Return]					${STATUS}
+
+Select/Unselect Checkbox	[Arguments]			${ELEMENT_ID}		${STATUS}
+	[Documentation]			This keyword selects or unselects checkbox identified by ${ELEMENT_ID} based on the value passed in ${STATUS}
+	Run Keyword If 			'${STATUS}'=='Select'		Execute Javascript			window.document.getElementById('${ELEMENT_ID}').checked = true;
+	...		ELSE IF			'${STATUS}'=='Unselect'		Execute Javascript			window.document.getElementById('${ELEMENT_ID}').checked = false;
+	Sleep 					2s
+
+Select Item In List Box		[Arguments]		${LISTBOX_ID}			${ITEM}			${VALUE}
+	[Documentation]			This keyword selects an item from a list box 						
+							
+							${STATUS}			Wait Until Element Display					${LISTBOX_ID}						10			2
+							Wait Until Element is Enabled		${LISTBOX_ID}		60
+							#Log					List Box Display Loop Result : ${STATUS}	WARN
+							Run Keyword If		'${STATUS}'!='True'		Fail	Partner List Box Display In Permission Page Failed So Exiting Test 
+							:For	${LOOP}		IN RANGE	1			5							
+							\	Press Key				${LISTBOX_ID}			${ITEM}
+							\	Wait Until Element is Enabled		${LISTBOX_ID}		60
+							\	Sleep					5s
+							\   ${FIELD_TEXT}			Get Value									${LISTBOX_ID}
+							#\   Log						Text Read From List Box : ${FIELD_TEXT}		WARN
+							\	${FIELD_VALUE}			Run Keyword And Return Status				Should Be Equal As Strings		${FIELD_TEXT.upper()}		${VALUE.upper()}	
+							\   Run Keyword If			'${FIELD_VALUE}'=='True'					Exit For Loop
+							
+							Run Keyword If		'${FIELD_VALUE}'!='True'		 Log				List Item Selection Failed	 
+							${STATUS}			Run Keyword If		'${FIELD_VALUE}'=='True'		Set Variable		Pass				
+							...					ELSE												Set Variable		Fail
+							
+						    [Return]					${STATUS}
+							
+Wait Until Element Display
+	[Arguments]			${ELEMENT}			${DELAY}		${TIME_FRACTION}
+	[Documentation]			While Loop via For feature of RF. If Element Found in given Time by scanning with given time interval
+	...						Keyword Return True, otherwise False.
+	...						Pre-requisite: N/A
+	...						Note: 		 : Note there is similar keyword Wait for Element can be used if no return is expected from the wait Keyword here
+	...						Return Type : True\False	
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 22nd April 2013
+	...						Update Date\By: N/A
+	
+	${COUNT}			Evaluate				${DELAY}/${TIME_FRACTION}
+	${COUNT}			Convert To Integer		${COUNT}
+	
+	${SCAN}				Set Variable			0
+	:For	${LOOP}		IN RANGE	1			${COUNT} + 1
+	\	Sleep				${TIME_FRACTION}s
+	#\ 	${STATUS}			Run Keyword And Return Status		Page Should Contain Element					${ELEMENT}
+	\ 	${STATUS}			Run Keyword And Return Status		Run Keyword And Continue On Failure			Page Should Contain Element			${ELEMENT}
+	\   ${SCAN}				Evaluate			${SCAN} + 1
+	\ 						Run Keyword If						'${STATUS}'=='True'							Exit For Loop
+	${RESULT}				Run Keyword If		   '${STATUS}'=='True'		Set Variable	True
+	...						ELSE											Set Variable	False
+	Run Keyword If		${STATUS}==False		Run Keyword and Continue on Failure		Fail	Element with Locator[${ELEMENT}] in ${DELAY} Seconds.
+	[Return]				${RESULT}
+	
+Wait Until Page Title Display
+	[Arguments]			${ELEMENT}			${DELAY}		${TIME_FRACTION}
+	[Documentation]			While Loop via For feature of RF. If Element Found in given Time by scanning with given time interval
+	...						Keyword Return True, otherwise False.
+	...						Pre-requisite: N/A
+	...						Note: 		 : Note there is similar keyword Wait for Element can be used if no return is expected from the wait Keyword here
+	...						Return Type : True\False	
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 30th July 2013
+	...						Update Date\By: N/A
+	
+	${COUNT}				Evaluate				${DELAY}/${TIME_FRACTION}
+	${COUNT}				Convert To Integer		${COUNT}
+	
+	${SCAN}					Set Variable			0
+	:For		${LOOP}		IN RANGE	1			${COUNT} + 1
+	\	Sleep				${TIME_FRACTION}s
+	\ 	${STATUS}			Run Keyword And Return Status		Run Keyword And Continue On Failure			Title Should Be		Dealertrack 
+	\   ${SCAN}				Evaluate			${SCAN} + 1
+	\ 						Run Keyword If						'${STATUS}'=='True'							Exit For Loop
+	${RESULT}				Run Keyword If		   				'${STATUS}'=='True'		Set Variable	True
+	...						ELSE								Set Variable	False
+Wait Until Checkbox Display
+	[Arguments]			${ELEMENT}			${DELAY}		${TIME_FRACTION}
+	[Documentation]			While Loop via For feature of RF. If Element Found in given Time by scanning with given time interval
+	...						Keyword Return True, otherwise False.
+	...						Pre-requisite: N/A
+	...						Note: 		 : Note there is similar keyword Wait for Element can be used if no return is expected from the wait Keyword here
+	...						Return Type : True\False	
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 30th July 2013
+	...						Update Date\By: N/A
+	
+	${COUNT}				Evaluate				${DELAY}/${TIME_FRACTION}
+	${COUNT}				Convert To Integer		${COUNT}
+	
+	${SCAN}					Set Variable			0
+	:For		${LOOP}		IN RANGE	1			${COUNT} + 1
+	\	Sleep				${TIME_FRACTION}s
+	\ 	${STATUS}			Run Keyword And Return Status		Run Keyword And Continue On Failure			Page Should Contain Checkbox			${ELEMENT}
+	\   ${SCAN}				Evaluate			${SCAN} + 1
+	\ 						Run Keyword If						'${STATUS}'=='True'							Exit For Loop
+	${RESULT}				Run Keyword If		   				'${STATUS}'=='True'		Set Variable	True
+	...						ELSE								Set Variable	False
+	
+	[Return]				${RESULT}
+
+Get Current Working Directory  
+	[Arguments]			${FILE_NAME}
+	[Documentation]			This keyword to retain the whole path of the script\working directory
+	...						Keyword Return String value of the whole path.
+	...						Pre-requisite: N/A
+	...						Note: 		 : 
+	...						Return Type : String
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 17th July 2013
+	...						Update Date\By: N/A
+	
+	${CURRENT_DIR}			WS_CommonUtil.getWorkingDirectory		${FILE_NAME}
+	#Log						Working Directory : ${CURRENT_DIR}
+	[Return] 				${CURRENT_DIR}	
+	
+Return Node Value  
+	[Arguments]			    ${XML_STRING}			${START_NODE}			${END_NODE}
+	[Documentation]			This keyword to retain the value of a node or any starting and ending node
+	...						Keyword Return String value between to given nodes
+	...						Pre-requisite: N/A
+	...						Note: 		 : 
+	...						Return Type : String
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 7th Aug 2013
+	...						Update Date\By: N/A
+	
+	Log 	${XML_STRING}
+	Log 	${START_NODE}
+	Log 	${END_NODE}
+	
+	
+	${START_POS}			WS_CommonUtil.FindStringInString		${XML_STRING}		${START_NODE}
+	${END_POS}				WS_CommonUtil.FindStringInString		${XML_STRING}		${END_NODE}
+	${LENGTH}				Get Length								${START_NODE}
+	${VALUESIZE}			Evaluate								int('${END_POS}')-int('${START_POS}')
+	${NODE_VAL}				WS_CommonUtil.GetSubStringFromAString	${XML_STRING}		${START_POS}		1
+	# Log 					${NODE_VAL}		WARN
+	${TEMP}					Get Length								${NODE_VAL}
+	#${VAL_POS}			    WS_CommonUtil.FindStringInString		${NODE_VAL}			${START_NODE}
+	${VAL_POS}			    WS_CommonUtil.FindStringInString		${NODE_VAL}			${END_NODE}
+	${TEMP}					Evaluate								int('${TEMP}')-int('${VAL_POS}')
+	#${NODE_VAL}				WS_CommonUtil.GetSubStringFromAString	${NODE_VAL}		${LENGTH}		${TEMP}		
+	${DELTA}					Evaluate							int('${LENGTH}')+int('${LENGTH}')
+	${DELTA}					Evaluate							int('${TEMP}')-int('${DELTA}')
+	${LAST_POS}					Evaluate							int('${LENGTH}')+int('${DELTA}')
+	${NODE_VAL}				WS_CommonUtil.GetSubStringFromAString	${NODE_VAL}		${LENGTH}		${TEMP}
+	# Log 		${NODE_VAL}	warn
+	[Return] 				${NODE_VAL}	
+	
+Return Node Value Multiple
+	[Arguments]			    ${XML_STRING}			${START_NODE}			${END_NODE}		${INDEX}
+	[Documentation]			This keyword to return the value of a node or any starting and ending node
+	...						Keyword Return String value between to given nodes
+	...						Pre-requisite: N/A
+	...						Note: 		 : 
+	...						Return Type : String
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 14th Oct 2013
+	...						Update Date\By: N/A
+	
+	${START_POS}			WS_CommonUtil.FindStringInString		${XML_STRING}		${START_NODE}
+	${END_POS}				WS_CommonUtil.FindStringInString		${XML_STRING}		${END_NODE}
+	${LENGTH}				Get Length								${START_NODE}
+	${VALUESIZE}			Evaluate								int('${END_POS}')-int('${START_POS}')
+	${NODE_VAL}				WS_CommonUtil.GetSubStringFromAString	${XML_STRING}		${START_POS}		1
+	${TEMP}					Get Length								${NODE_VAL}
+	${VAL_POS}			    WS_CommonUtil.FindStringInString		${NODE_VAL}			${END_NODE}
+	${TEMP}					Evaluate								int('${TEMP}')-int('${VAL_POS}')
+	${DELTA}					Evaluate							int('${LENGTH}')+int('${LENGTH}')
+	${DELTA}					Evaluate							int('${TEMP}')-int('${DELTA}')
+	${LAST_POS}					Evaluate							int('${LENGTH}')+int('${DELTA}')
+	
+	${NODE_VAL_ONE}				WS_CommonUtil.GetSubStringFromAString	${NODE_VAL}		${LENGTH}		${TEMP}
+	#Log						1st Node Value : ${NODE_VAL_ONE}				Warn
+	##############################################
+	${START_REMAINING}		Evaluate								int('${END_POS}')+int('${VALUESIZE}')
+	${LENGTH_TOTAL}			Get Length								${XML_STRING}
+	#${NEW_START_POS}		Evaluate								int('${END_POS}')+int('${START_NODE}')
+	${REMAINING_XML}		WS_CommonUtil.GetSubStringFromAString	${XML_STRING}		${START_REMAINING}			1
+	#Log						Rest Of XML : ${REMAINING_XML}				Warn
+	##############################################
+	${XML_STRING}			Set Variable			${REMAINING_XML}
+	${START_POS}			WS_CommonUtil.FindStringInString		${XML_STRING}		${START_NODE}
+	${END_POS}				WS_CommonUtil.FindStringInString		${XML_STRING}		${END_NODE}
+	${LENGTH}				Get Length								${START_NODE}
+	${VALUESIZE}			Evaluate								int('${END_POS}')-int('${START_POS}')
+	
+	${NODE_VAL}				WS_CommonUtil.GetSubStringFromAString	${XML_STRING}		${START_POS}		1
+	${TEMP}					Get Length								${NODE_VAL}
+	${VAL_POS}			    WS_CommonUtil.FindStringInString		${NODE_VAL}			${END_NODE}
+	${TEMP}					Evaluate								int('${TEMP}')-int('${VAL_POS}')
+	${DELTA}					Evaluate							int('${LENGTH}')+int('${LENGTH}')
+	${DELTA}					Evaluate							int('${TEMP}')-int('${DELTA}')
+	${LAST_POS}					Evaluate							int('${LENGTH}')+int('${DELTA}')
+	${NODE_VAL_TWO}			WS_CommonUtil.GetSubStringFromAString	${NODE_VAL}		${LENGTH}		${TEMP}
+	#Log						2nd Node Value : ${NODE_VAL_TWO}				Warn
+	##############################################
+	[Return] 					${NODE_VAL_ONE}		${NODE_VAL_TWO}		
+	
+	
+Return Children Of Parent Nodes
+	[Arguments]			    ${XML_STRING}			${START_NODE}			${END_NODE}		
+	[Documentation]			This keyword to return the value of a node or any starting and ending node
+	...						Keyword Return String value between to given nodes
+	...						Pre-requisite: N/A
+	...						Note: 		 : 
+	...						Return Type : String
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 20th Nov 2013
+	...						Update Date\By: N/A
+	
+	#########################################
+	# Initial Setup : Multiple Node Lookup
+	#########################################
+	
+	Log 	 ${XML_STRING}	
+	Log 	${START_NODE}
+	Log 	${END_NODE}		
+	${INITIAL_LENGTH}		Get Length		${XML_STRING}
+	${NODE_LENGTH}			Get Length		${START_NODE}
+	${INITIAL_XML}			WS_CommonUtil.GetSubStringFromAString	${XML_STRING}			${INITIAL_LENGTH}			646	
+	${INITIAL_NODE_START}	WS_CommonUtil.FindStringInString		${XML_STRING}			${START_NODE}
+	${INITIAL_NODE_END}		WS_CommonUtil.FindStringInString		${XML_STRING}			${END_NODE}
+	
+	# First Node Value Retain #
+	${NODE_VALUE}			Return Node Value						${XML_STRING}			${START_NODE}		${END_NODE}
+	Log						${NODE_VALUE}							#Warn	QQQ TH
+	
+	# Adjustment Post First Node #
+	${START}				Evaluate								int('${INITIAL_NODE_END}')+int('${NODE_LENGTH}')
+	${XML_LENGTH}			Evaluate								int('${INITIAL_LENGTH}')-int('${START}')
+	
+	${NODE_DICTIONARY}		Create Dictionary
+	${NODE_LIST}			Create List
+	
+	@{NodeStartPositions}	WS_CommonUtil.GetNodePositions			${XML_STRING}		${START_NODE}
+	
+	:For 	${ITEM}  	IN 		@{NodeStartPositions}
+	\		${PURSED_XML}		WS_CommonUtil.GetSubStringFromAString	${XML_STRING}			${ITEM}			1
+	\		Log 			${PURSED_XML}
+	\		${NODE_VALUE}		Return Node Value						${PURSED_XML}			${START_NODE}		${END_NODE}
+	\		Log					${NODE_VALUE}
+	\		Append To List		${NODE_LIST}							${NODE_VALUE}
+	Log List		${NODE_LIST}			#WARN	QQQ TH
+	
+	#WS_CommonUtil.FindStringInString					    ${RESPONSETEXT}		${ITEM}
+	
+	# ${REMAINING_XML}		WS_CommonUtil.GetSubStringFromAString	${XML_STRING}			  646			3671				#${START}		    ${XML_LENGTH}
+	# ${REMAINING_LENGTH}		Get Length								${REMAINING_XML}
+	
+	# # Additional Node Value #
+	# ${NODE_VALUE}			Return Node Value						${REMAINING_XML}		${START}		${REMAINING_LENGTH}
+	# ${POS_NODE_END}			WS_CommonUtil.FindStringInString		${REMAINING_XML}		${END_NODE}
+	# Log						${NODE_VALUE}							Warn
+	
+	# ${START}				Evaluate								int('${POS_NODE_END}')+int('${NODE_LENGTH}')
+	# ${REMAINING_XML}		WS_CommonUtil.GetSubStringFromAString	${REMAINING_XML}			  ${START}		 ${REMAINING_LENGTH}
+	# ${REMAINING_LENGTH}		Get Length								${REMAINING_XML}
+	
+	# ${NODE_VALUE}			Return Node Value						${REMAINING_XML}		${START_NODE}		${END_NODE}
+	# ${POS_NODE_END}			WS_CommonUtil.FindStringInString		${REMAINING_XML}		${END_NODE}
+	# Log						${NODE_VALUE}							Warn
+	
+	# ${START}				Evaluate								int('${POS_NODE_END}')+int('${NODE_LENGTH}')
+	# ${REMAINING_XML}		WS_CommonUtil.GetSubStringFromAString	${REMAINING_XML}			  ${START}		 ${REMAINING_LENGTH}
+	# ${REMAINING_LENGTH}		Get Length								${REMAINING_XML}
+	
+	
+	# ${NODE_FOUND}			Set Variable							False
+	# ${NODE_VAL_ONE}				WS_CommonUtil.GetSubStringFromAString	${NODE_VAL}		${LENGTH}		${TEMP}
+	# ${NODE_VALUE}								Return Node Value				${XML_STRING}		<a:ResidualPercentage>		</a:ResidualPercentage>	
+	
+	# :For	${Index}	IN RANGE  	1		10
+	# \	${STATUS}		Run Keyword And Return Status	
+	# \   Run Keyword If	'${STATUS}'=='True'		Run Keyword And Ignore Error							Press Key						//input[@id='dgLenders_ctl03_btnSelect']			\\13
+	# \   ${TEXT_STATUS}	${HEADER}				Run Keyword If	'${STATUS}'=='True'		
+	
+	# ${START_POS}			WS_CommonUtil.FindStringInString		${XML_STRING}		${START_NODE}
+	# ${END_POS}				WS_CommonUtil.FindStringInString		${XML_STRING}		${END_NODE}
+	# ${LENGTH}				Get Length								${START_NODE}
+	# ${VALUESIZE}			Evaluate								int('${END_POS}')-int('${START_POS}')
+	# ${NODE_VAL}				WS_CommonUtil.GetSubStringFromAString	${XML_STRING}		${START_POS}		1
+	# ${TEMP}					Get Length								${NODE_VAL}
+	# ${VAL_POS}			    WS_CommonUtil.FindStringInString		${NODE_VAL}			${END_NODE}
+	# ${TEMP}					Evaluate								int('${TEMP}')-int('${VAL_POS}')
+	# ${DELTA}					Evaluate							int('${LENGTH}')+int('${LENGTH}')
+	# ${DELTA}					Evaluate							int('${TEMP}')-int('${DELTA}')
+	# ${LAST_POS}					Evaluate							int('${LENGTH}')+int('${DELTA}')
+	
+	# ${NODE_VAL_ONE}				WS_CommonUtil.GetSubStringFromAString	${NODE_VAL}		${LENGTH}		${TEMP}
+	# #Log						1st Node Value : ${NODE_VAL_ONE}				Warn
+	# ##############################################
+	# ${START_REMAINING}		Evaluate								int('${END_POS}')+int('${VALUESIZE}')
+	# ${LENGTH_TOTAL}			Get Length								${XML_STRING}
+	# #${NEW_START_POS}		Evaluate								int('${END_POS}')+int('${START_NODE}')
+	# ${REMAINING_XML}		WS_CommonUtil.GetSubStringFromAString	${XML_STRING}		${START_REMAINING}			1
+	# #Log						Rest Of XML : ${REMAINING_XML}				Warn
+	# ##############################################
+	# ${XML_STRING}			Set Variable			${REMAINING_XML}
+	# ${START_POS}			WS_CommonUtil.FindStringInString		${XML_STRING}		${START_NODE}
+	# ${END_POS}				WS_CommonUtil.FindStringInString		${XML_STRING}		${END_NODE}
+	# ${LENGTH}				Get Length								${START_NODE}
+	# ${VALUESIZE}			Evaluate								int('${END_POS}')-int('${START_POS}')
+	
+	# ${NODE_VAL}				WS_CommonUtil.GetSubStringFromAString	${XML_STRING}		${START_POS}		1
+	# ${TEMP}					Get Length								${NODE_VAL}
+	# ${VAL_POS}			    WS_CommonUtil.FindStringInString		${NODE_VAL}			${END_NODE}
+	# ${TEMP}					Evaluate								int('${TEMP}')-int('${VAL_POS}')
+	# ${DELTA}					Evaluate							int('${LENGTH}')+int('${LENGTH}')
+	# ${DELTA}					Evaluate							int('${TEMP}')-int('${DELTA}')
+	# ${LAST_POS}					Evaluate							int('${LENGTH}')+int('${DELTA}')
+	# ${NODE_VAL_TWO}			WS_CommonUtil.GetSubStringFromAString	${NODE_VAL}		${LENGTH}		${TEMP}
+	# #Log						2nd Node Value : ${NODE_VAL_TWO}				Warn
+	# ##############################################
+	[Return] 					${NODE_LIST}	
+	
+Return Values From Child Node
+	[Arguments]			    ${XML_STRING}			@{NODES}	
+	[Documentation]			This keyword to retain the value of a node,child node or any starting and ending node
+	...						Keyword Return String value between given nodes. It will purse\navigate through all the Nodes to 
+	...						Retain the value of the last\child node
+	...						Pre-requisite: N/A
+	...						Note: 		 : 
+	...						Return Type : String
+	...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date: 27th Nov 2013
+	...						Update Date\By: N/A
+	
+	#########################################
+	# Initial Setup : Multiple Node Lookup
+	#########################################
+	
+	# Recursive - Return Node Values #
+	:For 	${ITEM}  	IN 		@{NODES}
+	\	${START_NODE}			Catenate	SEPARATOR=	<		${ITEM}		>
+	\	${END_NODE}				Catenate	SEPARATOR=	</		${ITEM}		>
+	\	${NODE_VALUE}		    Return Node Value				${XML_STRING}	${START_NODE}	${END_NODE}
+	#\	Log						${NODE_VALUE}					Warn
+	\	${XML_STRING}			Set Variable					${NODE_VALUE}
+	#Log 	Last Node Value : ${NODE_VALUE}						Warn
+	[Return]					${NODE_VALUE}		
+	
+Log Test Status
+
+	# Close All Browsers
+	
+	${TC_EndTime}	Get Time	epoch
+	${TC_TIME}				Evaluate	${TC_EndTime} - ${TC_StartTime}
+	${TestLog_Created}	Run Keyword and Return Status		File Should Exist	TestLog.xls
+	Run Keyword If		${TestLog_Created}==False	Run Keywords
+	...			Create Excel File		TestLog.xls		AND
+	...			Write To Excel		TestLog.xls		${0}	${5}		Time				AND
+	...			Write To Excel		TestLog.xls		${0}	${0}		Test Suite Name		AND
+	...			Write To Excel		TestLog.xls		${0}	${1}		Test Scenario		AND
+	...			Write To Excel		TestLog.xls		${0}	${2}		Status				AND
+	...			Write To Excel		TestLog.xls		${0}	${3}		Test Message		AND
+	...			Write To Excel		TestLog.xls		${0}	${4}		Time Taken
+	
+	${TestLogRow}		Row Count	TestLog.xls		Sheet1
+	Update Excel Log	TestLog.xls		${TestLogRow}	${SUITE NAME}		${TEST NAME}		${TEST STATUS}		${TEST MESSAGE}		${TC_TIME}
+
+	WriteToFile			${logfile}		Y				++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	WriteToFile			${logfile}		Y				${SUITE NAME} | ${TEST NAME} | ${TEST STATUS} | ${TEST MESSAGE} | ${TC_TIME} seconds	
+	WriteToFile			${logfile}		Y				++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	Run Keyword If      '${TEST STATUS}'=='FAIL'		WriteToErrorLog			${ErrorLog}		${SUITE NAME} | ${TEST NAME} | ${TEST STATUS} | ${TEST MESSAGE} | ${TC_TIME} seconds
+	
+Log Test Status 2
+
+	# Close All Browsers
+	
+	${TC_EndTime}		Get Time	epoch
+	${TC_TIME}			Evaluate	${TC_EndTime} - ${TC_StartTime}
+	# # # ${TestLog_Created}	Run Keyword and Return Status		File Should Exist	TestLog.xls
+	# # # Run Keyword If		${TestLog_Created}==False	Run Keywords
+	# # # ...			Create Excel File		TestLog.xls		AND
+	# # # ...			Write To Excel		TestLog.xls		${0}	${5}		Time				AND
+	# # # ...			Write To Excel		TestLog.xls		${0}	${0}		Test Suite Name		AND
+	# # # ...			Write To Excel		TestLog.xls		${0}	${1}		Test Scenario		AND
+	# # # ...			Write To Excel		TestLog.xls		${0}	${2}		Status				AND
+	# # # ...			Write To Excel		TestLog.xls		${0}	${3}		Test Message		AND
+	# # # ...			Write To Excel		TestLog.xls		${0}	${4}		Time Taken
+	
+	# # # ${TestLogRow}		Row Count	TestLog.xls		Sheet1
+	# # # Update Excel Log	TestLog.xls		${TestLogRow}	${SUITE NAME}		${TEST NAME}		${TEST STATUS}		${TEST MESSAGE}		${TC_TIME}
+
+	WriteToFile			${logfile}		Y				++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	WriteToFile			${logfile}		Y				${SUITE NAME} | ${TEST NAME} | ${TEST STATUS} | ${TEST MESSAGE} | ${TC_TIME} seconds	
+	WriteToFile			${logfile}		Y				++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	Run Keyword If      '${TEST STATUS}'=='FAIL'		WriteToErrorLog			${ErrorLog}		${SUITE NAME} | ${TEST NAME} | ${TEST STATUS} | ${TEST MESSAGE} | ${TC_TIME} seconds	
+	
+		
+Update Excel Log    [Arguments]         ${ExcelFile}		${Row}            ${Suite}           ${Scenario}     ${Status} 		${TestMsg}         ${TimeTaken}
+
+	Open Excel                                          ${ExcelFile}
+	#Log                                                                Current Row:\t${Current Row}          Warn
+	${cur_time}                                         Get Time
+	#${Row}                                                         Evaluate                                              ${Current Row}+1
+	${Row}                                                            Convert To Integer                  ${Row}
+	${ColName}                                         Set Variable     Time
+	LogToExcel                                         ${ExcelFile}    ${Row}                        ${ColName}                             ${cur_time}     
+	LogToExcel                                         ${ExcelFile}     ${Row}                        Test Suite Name                      ${Suite}           
+	LogToExcel                                         ${ExcelFile}     ${Row}                        Test Scenario                           ${Scenario}      
+	LogToExcel                                         ${ExcelFile}     ${Row}                        Status                              ${Status}
+	LogToExcel                                       	${ExcelFile}     ${Row}                        Test Message                                      ${TestMsg}
+	LogToExcel                                        ${ExcelFile}     ${Row}                        Time Taken                                ${TimeTaken} Seconds	
+	
+Logout
+	[Documentation]		This keyword will log out from the QA site and also verifies successful logout.
+	Unselect Frame
+	sleep 	2s
+	Select Frame					${IFRAME}
+	sleep 	2s
+	Select Frame					${BOTTOM}
+	sleep 	2s
+	Press Key						${LOG_OUT}			\\13	
+	sleep    7s
+	# verify the title of the page to check that the user has logged out.
+	Run Keyword and continue on failure		Title Should Be		${LOGINPAGE}
+	
+Checkbox Scanner	[Arguments]				@{CHECKBOX_MATRIX}	
+	[Documentation]			To scan Checkbox for its defined status. If not matched then update
+	...						Like field validation of required fields etc.
+	...						Keyword Return: N/A
+	...						Pre-requisite : N/A
+	...						Note: 		  : Checkbox and its associated status send in Dictionary object
+	...						Return Type   : N/A
+	...				  		Author        : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	...						Creation Date : 8th Aug 2013
+	...						Update Date\By: N/A
+	
+	@{KEYS}		Get Dictionary Keys	 @{CHECKBOX_MATRIX}
+	:For 	${ITEM}  	IN 		@{KEYS} 
+	\		${STATUS_EXPECT}	Get From Dictionary				@{CHECKBOX_MATRIX}		${ITEM}
+	\		${STATUS}			Run Keyword And Return Status	Run Keyword If			'${STATUS_EXPECT.upper()}' == 'SELECT'	Checkbox Should Be Selected		${ITEM}
+	\		Update Log		[keyword] Checkbox Scanner		Checkbox Id('${ITEM}'):Status('${STATUS}')
+	\							Run Keyword If					'${STATUS}'=='False'	Select A Checkbox		${ITEM}
+	
+Wait Until Element is Enabled	[Arguments]		${ELE_LOC}		${TIME_OUT}=5
+	[Documentation]			This keyword will wait for given time for elements turns to be enabled
+	...						Pre-requisite : N/A
+	...						Note: 		  : N/A
+	...						Arguments: 	  :${ELE_LOC} --> Element's locator, |optional, by default is 5|${TIME_OUT} --> the times in seconds till that keyword wait for.
+	...				  		Author        :Sanjay Dubey
+	...						Creation Date : 17 Oct 2013
+	...						Update Date\By: N/A
+	
+	:FOR	${i}	IN RANGE	1	${TIME_OUT}+1
+	\	Sleep		1s
+	\	${Is_Enabled}	Run Keyword and Return Status	Element Should Be Enabled	${ELE_LOC}
+	\	Run Keyword If		${Is_Enabled}		Exit For Loop
+	
+	Run Keyword If		${Is_Enabled}==False		Run Keyword And Continue On Failure		Fail	Element is not turned to Enable in ${TIME_OUT} seconds	
+	
+Disable IE Security Settings
+	${rc} 	Run and Return RC	${RESOURCE}\\Code\\Utility\\DisableIESecutiySettings.vbs
+	Log		Disable IE Security Settings RC=${rc}	warn
+	Sleep	3
+	Run Keyword If		${rc}!=0	Run Keyword and Continue on Failure		Fail	Keyword Disable IE Security Settings failed
+	
+	
+	
+	
+	
+##############################################################################################################################################################################	
+##############################################################################################################################################################################	
+##############################################################################################################################################################################	
+	
+	
+# Run Web Service						[Arguments]				${EXEC}						${WEBSERVICE}							${EXCELFILE}						${UNAME}					${PWD}							${URLPD}				${SACTIONPD}			${SCHEMAFILE}
+	# [Documentation]			For executing Web srvice using Excel File
+	# Run Keyword And Continue On Failure						Run Keyword If				'${EXEC}'=='1'							Execute Web Service					${WEBSERVICE}				${EXCELFILE}					${UNAME}				${PWD}					${URLPD}			${SACTIONPD}			${SCHEMAFILE}
+	# Run Keyword And Continue On Failure						Run Keyword If				'${EXEC}'!='1'							Log									${WEBSERVICE}: This Test Case is not selected for execution.
+	
+# Execute Web Service					[Arguments]				${WEBSERVICE}				${EXCELFILE}							${UNAME}							${PWD}						${URLPD}						${SACTIONPD}			${SCHEMAFILE}	
+	# [Documentation]			For executing Web srvice using Excel Files with multiple data/Rows
+	# ${TOTALROWS}=   		Run Keyword If		${GRID}==False		WS_CommonUtil.Get_NumberOfRowsColumns				${RESOURCE}\\Input\\${EXCELFILE}    			ROWS
+	# ...			ELSE			WS_CommonUtil.Get_NumberOfRowsColumns				${RESOURCE}/Input/${EXCELFILE}    			ROWS										# Get total number rows present in excel file
+	# Log    							${TOTALROWS}										# Log total no. of rows
+	# Run Keyword If		${GRID}==False					WS_CommonUtil.ResetResultColumn						${RESOURCE}\\Input\\${EXCELFILE}				${TOTALROWS}						Send_Request_Result			Not Executed		
+	# ...			ELSE		WS_CommonUtil.ResetResultColumn						${RESOURCE}/Input/${EXCELFILE}				${TOTALROWS}						Send_Request_Result			Not Executed					# Calling function to reset Send_Request_Result column to "Not Executed"
+	# :FOR							${ROW}												IN RANGE								1									${TOTALROWS}				# Run the loop on all rows of excel. Row 0 contains titles.
+	# \								Log													${ROW}									# Log current row number
+	# \       						${EXECUTE}=	   			Run Keyword If		${GRID}==False				WS_CommonUtil.Get_ExcelValue	    		${RESOURCE}\\Input\\${EXCELFILE}   		${ROW}						Execute				
+			# ...		ELSE			WS_CommonUtil.Get_ExcelValue	    		${RESOURCE}/Input/${EXCELFILE}   		${ROW}						Execute					# Get value in Execute column of current excel row
+	# \								Log													'${EXECUTE}'							# Log value in 'Execute' column 
+	# #\       						Run Keyword If      								'${EXECUTE}'=='Y'     					Create Web Service Request    		${WEBSERVICE}      			${RESOURCE}\\Input\\${EXCELFILE}     	${ROW} 					${UNAME}				${PWD}				${URLPD}				${SACTIONPD}			${SCHEMAFILE}			
+	# \       						Run Keyword If      								'${EXECUTE}'=='Y'     					Create Web Service Request    		${WEBSERVICE}      			${EXCELFILE}     	${ROW} 				${UNAME}				${PWD}				${URLPD}				${SACTIONPD}			${SCHEMAFILE}			
+	
+# Create Web Service Request    [Arguments]  								${WEBSERVICE}    					${FILENAME}   	 	${ROWNO}		${USERNAME}			${PASSWORD}			${URL}			${SOAPACTION}			${SCHEMAFILE}
+	# [Documentation]         	This keyword will execute only if value of 'Execute' = 'Y' in excel file. 
+	# ...							Calls python function (Create_RequestString) to create request string using: 
+	# ...								${WEBSERVICE} variable contains name of Web Service
+	# ...								${FILENAME} variable contains path of excel file
+	# ...								${ROWNO} variable contains current row in excel file
+	# ...								${USERNAME} User name required to run web service
+	# ...								${PASSWORD} Password required
+	# ... 							${URL}	URL of web service
+	# ...								${SOAPACTION} SOAP action
+	# ...								Return values: ${REQUEST} variable to hold request xml string retured from function (Create_RequestString)
+	# ...							Then calls python function (Send_Request) to send request to web service using:
+	# ...								${WEBSERVICE} variable contains name of Web Service
+	# ...								${REQUEST} variable contains XML request string and
+	# ...								valid Username and Password required to call web service
+	# ...								Return values: ${RESPONSECODE} 	variable contains response code received after sending request
+	# ...											   ${RESPONSETEXT}	variable contains response text
+	# ...							Validates the response received based of the response code.
+    
+	
+	# ${REQUEST}=		    		Run Keyword If		${GRID}==False          Run Keyword And Continue On Failure			WS_CommonUtil.Create_RequestString	       		${WEBSERVICE}	   				${RESOURCE}\\Input\\${FILENAME}						${ROWNO}				${RESOURCE}\\WebService				${SCHEMAFILE}		
+	# ...							ELSE		Run Keyword And Continue On Failure			WS_CommonUtil.Create_RequestString	       		${WEBSERVICE}	   				${RESOURCE}/Input/${FILENAME}						${ROWNO}				${RESOURCE}/WebService				${SCHEMAFILE}				# Calling function to create request XML string
+	# ${RESPONSECODE}				${RESPONSETEXT}=			Run Keyword If		${GRID}==False				Run Keyword And Continue On Failure			    WS_CommonUtil.Send_Request      ${RESOURCE}\\Input\\${FILENAME}						${ROWNO}				${WEBSERVICE}			${REQUEST}		  		${USERNAME}		  		${PASSWORD}			${URL}			${SOAPACTION}		${RESOURCE}\\WebService		
+	# ...		ELSE		Run Keyword And Continue On Failure			    WS_CommonUtil.Send_Request      ${RESOURCE}/Input/${FILENAME}						${ROWNO}				${WEBSERVICE}			${REQUEST}		  		${USERNAME}		  		${PASSWORD}			${URL}			${SOAPACTION}		${RESOURCE}/WebService			# Calling function to send XML request to web service. For invalid parameters error is expected in response.	
+	# #${VALIDATIONRESULT}=		#Run Keyword And Continue On Failure		#WS_CommonUtil.Validate_Response      			#${WEBSERVICE}	   				#${FILENAME}  					#${ROWNO}			 	#${RESPONSECODE}					#${RESPONSETEXT}			# Calling function to validate received XML response. This is not implemented yet.	
+	# Run Keyword If 				${RESPONSECODE}==200						Validate Valid Response							${WEBSERVICE}					${FILENAME}				   	 	${ROWNO}					${RESPONSETEXT}			${RESPONSECODE}
+	# Run keyword If				${RESPONSECODE}!=200						Validate Invalid Response						${RESPONSETEXT}					${FILENAME}   	 				${ROWNO}					${RESPONSECODE}		
+
+	
+# Get Excel Value					[Arguments]									${FILENAME_WITH_PATH}								${ROWNO}								${COLNAME}
+	# [Documentation]				This keyword returns value in particular cell of excel based on row no and column name
+	# # calling python function to return value in particular column of excel
+	# ${EXCELVAL}=				WS_CommonUtil.Get_ExcelValue				${FILENAME_WITH_PATH}								${ROWNO}								${COLNAME}
+	# [Return]					${EXCELVAL}
+
+# Validate Valid Response 		[Arguments]									${WEBSERVICE}							${FILENAME}								${ROWNO}								${RESPONSETEXT}				${RESPONSECODE}
+	# [Documentation]				This keyword validates valid response received
+	# ...							Parses xml response first, verifies Root value
+	# ...							Calls keyword to check that all nodes that should be present in response are present or not
+	# ...							Calls keyword to check that all nodes that should not be present in response are present or not
+	# # Check webservice name
+	# ${START}=					Fetch From Left								${WEBSERVICE}							_
+	# Run Keyword And Continue On Failure										Run Keyword If							'${START}'=='PD'						Validate PD Response					${WEBSERVICE}					${FILENAME}								${ROWNO}								${RESPONSETEXT}				${RESPONSECODE}	
+	# Run Keyword And Continue On Failure										Run Keyword If							'${START}'=='FD'						Validate FD Response					${WEBSERVICE}					${FILENAME}								${ROWNO}								${RESPONSETEXT}				${RESPONSECODE}	
+
+# Validate PD Response			[Arguments]									${WEBSERVICE}							${FILENAME}								${ROWNO}								${RESPONSETEXT}				${RESPONSECODE}	
+	# # read value in Valid/Invalid column
+	# #Log			${ROWNO}
+	# ${EXCELVAL}=		Run Keyword If		${GRID}==False		Get Excel Value								${RESOURCE}\\Input\\${FILENAME}			${ROWNO}								Valid/Invalid
+	# ...		ELSE		Get Excel Value								${RESOURCE}/Input/${FILENAME}			${ROWNO}								Valid/Invalid
+	# # Check that it is not empty
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${EXCELVAL}								Please enter 'Valid or Invalid' in 'Valid/Invalid' column of excel spreadsheet in row ${ROWNO +1}.
+	# # Check if it contains 'Valid'
+	# #Run Keyword And Continue On Failure									Should Be Equal As Strings				${EXCELVAL}								Valid									
+	# # Call keyword to compare actual and expected error messages
+	# Run Keyword And Continue On Failure										Run Keyword If							'${EXCELVAL}'=='Valid'					Validate XML Nodes						${FILENAME}								${ROWNO}								${RESPONSETEXT}
+	# Run Keyword And Continue On Failure										Run Keyword If							'${EXCELVAL}'!='Valid'					Fail									Invalid response was expected but received a valid response code: ${RESPONSECODE}. This could either be a defect or the wrong data entered in the excel file row ${ROWNO +1}.
+
+# Validate FD Response			[Arguments]									${WEBSERVICE}							${FILENAME}								${ROWNO}								${RESPONSETEXT}				${RESPONSECODE}	
+	# # read value in Valid/Invalid column
+	# ${EXCELVAL}=		Run Keyword If		${GRID}==False		Get Excel Value								${RESOURCE}\\Input\\${FILENAME}								${ROWNO}								Valid/Invalid
+	# ...				ELSE		Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Valid/Invalid
+	# # Check that it is not empty
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${EXCELVAL}								Please enter 'Valid or Invalid' in 'Valid/Invalid' column of excel spreadsheet in row ${ROWNO +1}.
+	# # Check if it contains 'Valid'
+	# #Run Keyword And Continue On Failure									Should Be Equal As Strings				${EXCELVAL}								Valid									
+	# # Call keyword to compare actual and expected error messages
+	# Run Keyword And Continue On Failure										Run Keyword If							'${EXCELVAL}'!='Valid'					Fail									Invalid response was expected but received a valid response code: ${RESPONSECODE}. This could either be a defect or the wrong data entered in the excel file row ${ROWNO +1}.
+	# Run Keyword And Continue On Failure										Run Keyword If							'${EXCELVAL}'=='Valid'					Log										You have received valid response.
+	
+	
+# Validate XML Nodes				[Arguments]									${FILENAME}								${ROWNO}								${RESPONSETEXT}
+	# # Parse xml and get root
+	# ${ROOT}=					Parse Xml									${RESPONSETEXT}
+	# #Log							Root Tag: ${ROOT.tag}
+	# ${ATTR}=					XML.Get Element Attribute						${ROOT}									xmlns
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${ATTR}									No attribute is found for Root node in response for excel spreadsheet row ${ROWNO +1}
+	# # read value of root from excel
+	# ${EXCELVAL}=		Run Keyword If		${GRID}==False		Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Root
+	# ...		ELSE	Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Root
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${EXCELVAL}								Please enter name of root node in excel spreadsheet row ${ROWNO +1}
+	# # Check that root tag matches with expected value
+	# Run Keyword And Continue On Failure										Should Be Equal 						'${ROOT.tag}'							'${EXCELVAL}'							Expected root node, in excel spreadsheet row ${ROWNO +1}, and Actual root node do not match.\nExpected Root node:${EXCELVAL}\nActual Root Node:${ROOT.tag}			false
+	# # Check for attribute. Read value from excel.
+	# ${EXCELVAL}=		Run Keyword If		${GRID}==False		Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Root_Attribute	
+	# ...		ELSE		Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Root_Attribute
+	# # compare values
+	# Run Keyword And Continue On Failure										Should Be Equal As Strings				${ATTR}									${EXCELVAL}								Expected root arrtibute and actual root arrtibute do not match for excel spreadsheet row ${ROWNO +1}.\nExpected attribute:${EXCELVAL}\nActual attribute:${ATTR}			false
+	# # generate list of excel headers
+	# ${HEADLIST}= 		Run Keyword If		${GRID}==False		WS_CommonUtil.Generate_HeaderList			${RESOURCE}/Input/${FILENAME}
+	# ...		ELSE		WS_CommonUtil.Generate_HeaderList			${RESOURCE}/Input/${FILENAME}
+	# # find column no of 'Nodes_Should_Present' column
+	# ${COLNO}=					WS_CommonUtil.Get_ColumnNumber				${HEADLIST}								Nodes_Should_Present
+	# #Log							${COLNO}
+	# # get no. of nodes to check that they are present in response
+	# ${EXCELVAL}=		Run Keyword If		${GRID}==False		Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Nodes_Should_Present
+	# ...		ELSE	Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Nodes_Should_Present
+	# ${EXCELVAL}=				Evaluate									str(int(${EXCELVAL}))
+	# #Log							${EXCELVAL}
+	# # check that no. of nodes is not empty
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${EXCELVAL}								Please enter no. of nodes which sould be present in response for excel spreadsheet row ${ROWNO +1}.
+	# # call keyword to check for nodes which should be present in response
+	# Run Keyword And Continue On Failure										Run Keyword If				'${EXCELVAL}'!='0' and '${EXCELVAL}'!='${EMPTY}'	Check Nodes Should Exist				${FILENAME}								${ROWNO}					${COLNO}						${EXCELVAL}
+	# Run Keyword And Continue On Failure										Run Keyword If				'${EXCELVAL}'=='0' 									Log										No. of nodes to validate is 0.
+	# # *********************************************************************************************************
+	# # check for nodes which should not be present
+	# # find column no of 'Nodes_Should_Not_Present' column
+	# ${COLNO}=					WS_CommonUtil.Get_ColumnNumber					${HEADLIST}								Nodes_Should_Not_Present
+	# #Log							${COLNO}
+	# # get no. of nodes to check that they are not present in response
+	# ${EXCELVAL}=		Run Keyword If		${GRID}==False		Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Nodes_Should_Not_Present
+	# ...				ELSE	Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Nodes_Should_Not_Present
+	# ${EXCELVAL}=				Evaluate									str(int(${EXCELVAL}))
+	# #Log							${EXCELVAL}
+	# # check that no. of nodes is not empty
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${EXCELVAL}									Please enter no. of nodes which should not be present in response.
+	# # call keyword to check for nodes which should not be present in response
+	# Run Keyword If				((${EXCELVAL}!=0) and (${GRID}==False))			Check Nodes Should Not Exist			${RESOURCE}/Input/${FILENAME}								${ROWNO}					${COLNO}						${EXCELVAL}
+	# ...			ELSE IF			((${EXCELVAL}!=0) and (${GRID}==True))			Check Nodes Should Not Exist			${RESOURCE}/Input/${FILENAME}								${ROWNO}					${COLNO}						${EXCELVAL}
+	# Run Keyword If				${EXCELVAL}==0									Log										No. of nodes which should not be present is 0.
+	
+	
+# Check Nodes Should Exist		[Arguments]									${FILENAME}								${ROWNO}								${COLNO}					${EXCELVAL}
+	# [Documentation]				Keyword to check that nodes mentioned in excel are present in xml response
+	# ${ATTR3}=		Run Keyword If		${GRID}==False			Get Excel Value								${RESOURCE}\\Input\\${FILENAME}								${ROWNO}								Node3_Attribute
+	# ...		ELSE	Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Node3_Attribute
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${ATTR3}								Please enter attribute of node 3 in excel spreadsheet row ${ROWNO +1}.
+	# ${ATTR5}=		Run Keyword If		${GRID}==False			Get Excel Value								${RESOURCE}\\Input\\${FILENAME}								${ROWNO}								Node5_Attribute
+	# ... 	ELSE		Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Node5_Attribute
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${ATTR5}								Please enter attribute of node 5 in excel spreadsheet row ${ROWNO +1}.
+	# :FOR						${COL}										IN RANGE								2										${EXCELVAL}+1			
+	# \							${REQCOL}=									Evaluate								int(${COLNO})+int(${COL})				# find column no.
+	# \							${CNAME}=				Run Keyword If		${GRID}==False					WS_CommonUtil.Get_ExcelValue_ColNo		${RESOURCE}\\Input\\${FILENAME}								${0}					${REQCOL}
+		# ...		ELSE	WS_CommonUtil.Get_ExcelValue_ColNo		${RESOURCE}/Input/${FILENAME}								${0}					${REQCOL}	# read node name from excel
+	# \							${EXCELVAL}=			Run Keyword If		${GRID}==False					WS_CommonUtil.Get_ExcelValue_ColNo		${RESOURCE}\\Input\\${FILENAME}								${ROWNO}					${REQCOL}						
+		# ...		ELSE	WS_CommonUtil.Get_ExcelValue_ColNo		${RESOURCE}/Input/${FILENAME}								${ROWNO}					${REQCOL}	# read node name from excel
+	# \							Run Keyword And Continue On Failure			Should Not Be Empty						${EXCELVAL}								Please enter the name of the node in excel spreadsheet row ${ROWNO +1}, column ${CNAME} which should be present in response.
+	# \							Run Keyword And Continue On Failure			Run Keyword If							'${EXCELVAL}'!='${EMPTY}'				Element Should Exist					${RESPONSETEXT}							.//${EXCELVAL}							Expected node tag is not found in response: ${EXCELVAL} in excel sheet, row ${ROWNO +1} and Column Node${COL}. 		     	# check if node exists 
+	# \							${NODECOUNT}=								Get Element Count						${RESPONSETEXT} 						.//${EXCELVAL}
+	# \							Run Keyword And Continue On Failure			Run Keyword If							'${NODECOUNT}' > '${0}'					Get Elements And Check Attribute		${RESPONSETEXT}			${EXCELVAL}			${FILENAME}			${ROWNO}			${REQCOL}			${ATTR3}			${ATTR5}
+
+	
+# Get Elements And Check Attribute				[Arguments]							${RESPONSETEXT}							${EXCELVAL}						${FILENAME}								${ROWNO}				${REQCOL}			${ATTR3}			${ATTR5}
+	# @{NODELIST} = 								Run Keyword And Continue On Failure		Get Elements 						${RESPONSETEXT} 						.//${EXCELVAL}				# get list of nodes	
+	# Log List									${NODELIST}
+	# #${COLNAME}=								WS_CommonUtil.Get_ExcelValue_ColNo		${RESOURCE}\\Input\\${FILENAME}			${0}						${REQCOL}						# read column heading
+	# ${COLNAME}=			Run Keyword If		${GRID}==False						WS_CommonUtil.Get_ExcelValue_ColNo		${RESOURCE}\\Input\\${FILENAME}			${0}						${REQCOL}		
+			# ...		ELSE	WS_CommonUtil.Get_ExcelValue_ColNo		${RESOURCE}/Input/${FILENAME}			${0}						${REQCOL}	# read column heading
+	# Run Keyword And Continue On Failure			Run Keyword If							'${EXCELVAL}'!='${EMPTY}' and '${COLNAME}'=='Node3' and '${ATTR3}'!='NA' and '${ATTR3}'!='${EMPTY}'							Compare Attribute				${ROWNO}			${COLNAME}				${ATTR3}						@{NODELIST}			
+	# Run Keyword And Continue On Failure			Run Keyword If							'${EXCELVAL}'!='${EMPTY}' and '${COLNAME}'=='Node5' and '${ATTR5}'!='NA' and '${ATTR5}'!='${EMPTY}'							Compare Attribute				${ROWNO}			${COLNAME}				${ATTR5}						@{NODELIST}			
+	
+	
+# Compare Attribute				[Arguments]									${ROWNO}			${COLNAME}			${REQATTR}								@{NODELIST}								
+	# :FOR						${NODE}										IN										@{NODELIST}
+	# \							${ATTR}=									XML.Get Element Attribute					${NODE}									xmlns
+	# \							Run Keyword And Continue On Failure			Should Be Equal As Strings				${ATTR}									${REQATTR}					Expected and Actual attributes do not match in excel spreadsheet row ${ROWNO +1}, column ${COLNAME}.\nExpected attribute:${REQATTR}\nActual attribute:${ATTR}	 		false
+	# \							Exit For Loop
+
+	
+# Check Nodes Should Not Exist	[Arguments]									${FILENAME}								${ROWNO}								${COLNO}					${EXCELVAL}
+	# [Documentation]				Keyword to check that nodes mentioned in excel are not present in xml response
+	# :FOR						${COL}										IN RANGE								1										${EXCELVAL}+1					
+	# \							${REQCOL}=									Evaluate								int(${COLNO})+int(${COL})				# find column no.
+	# \							${EXCELVAL}=								WS_CommonUtil.Get_ExcelValue_ColNo		${FILENAME}								${ROWNO}					${REQCOL}						# read node name from excel
+	# #\							Log											${EXCELVAL}
+	# \							Run Keyword And Continue On Failure			Should Not Be Empty						${EXCELVAL}								Please enter name of node in row ${ROWNO +1}, column NotExist${COL} of excel spreadsheet which should not be present in response.
+	# \							Run Keyword And Continue On Failure			Run Keyword If							'${EXCELVAL}'!='${EMPTY}'				Element Should Not Exist				${RESPONSETEXT}							.//${EXCELVAL}				Unexpected node tag found: ${EXCELVAL} in excel sheet, row ${ROWNO +1} and column NotExist${COL} 			# check that nodes does not exist			
+	
+	
+# Validate Invalid Response		[Arguments]									${RESPONSETEXT}							${FILENAME}								${ROWNO}					${RESPONSECODE}
+	# [Documentation]				This keyword checks that invalid response is expected and calls keyword to compare expected and actual erros messages
+	# # read value in Valid/Invalid column
+	# ${EXCELVAL}=		Run Keyword If		${GRID}==False     		Get Excel Value								${RESOURCE}\\Input\\${FILENAME}								${ROWNO}								Valid/Invalid
+		# ...		ELSE		Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								Valid/Invalid
+	# # Check that it is not empty
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${EXCELVAL}								Please enter 'Valid or Invalid' in 'Valid/Invalid' column of excel spreadsheet in row ${ROWNO +1}.
+	# # Check if it contains 'Invalid'
+	# #Run Keyword And Continue On Failure									Should Be Equal As Strings				${EXCELVAL}								Invalid									
+	# # Call keyword to compare actual and expected error messages
+	# Run Keyword And Continue On Failure										Run Keyword If							'${EXCELVAL}'=='Invalid'				Compare Error Message					${RESPONSETEXT}			${RESPONSECODE}
+	# Run Keyword And Continue On Failure										Run Keyword If							'${EXCELVAL}'!='Invalid'				Fail									Valid response was expected but received an invalid response code: ${RESPONSECODE}. This could either be a defect or the wrong data entered in the excel file row ${ROWNO +1}.
+	
+	
+# Compare Error Message			[Arguments] 								${RESPONSETEXT}							${RESPONSECODE}
+	# [Documentation]				This keyword makes sure that expected error is not empty and then compares expected and actual error messages
+	# # read value in 'ExpectedErrorResponse' column of excel file
+	# ${EXCELVAL}=		Run Keyword If		${GRID}==False		Get Excel Value								${RESOURCE}\\Input\\${FILENAME}								${ROWNO}								ExpectedErrorResponse
+	# ...		ELSE		Get Excel Value								${RESOURCE}/Input/${FILENAME}								${ROWNO}								ExpectedErrorResponse
+	# #Log							${EXCELVAL}
+	# # check that expected error is not empty
+	# Run Keyword And Continue On Failure										Should Not Be Empty						${EXCELVAL}								Please enter Expected Error Message in row ${ROWNO +1} of excel spreadsheet.
+	# # compare actual and expected error messages
+	# Run Keyword And Continue On Failure										Should Contain							${RESPONSETEXT}							${EXCELVAL}								Expected error message DID NOT match actual error message in row ${ROWNO +1}.\nReceived reponse code:${RESPONSECODE}.\nExpected error message:"${EXCELVAL}"\nReceived error message:"${RESPONSETEXT}"				false
+
+	
+# ***** Common UI Keywords for PD and FD	*****
+
+# Login
+    # [Documentation]                             This keyword will login at QA site with the credentials provided and also verifies the successful login. 
+    # #Set Selenium Timeout             ${SEL_TIMEOUT}    
+	# #WS_CommonUtil.KillProcessIE	
+	# #${BR}=      Open Browser           ${LOGINURL}            ${BROWSER}
+	# #WS_CommonUtil.KillProcessIE	
+	# ${BR}		Run Keyword If						'${GRID}'=='True'					Open Browser  ${LOGINURL}  ${BROWSER}	alias=main	remote_url=http://${SELENIUM_HOST}:${SELENIUM_PORT}/wd/hub
+	# ...			ELSE																    Open Browser  ${LOGINURL}  ${BROWSER}
+	
+	# Set Suite Variable                            ${BR}
+	# ###################################################################
+	# #Patch added to resolve the additional security system pop-up(NH) #
+	# ###################################################################
+	# Maximize Browser Window
+	# ####### Startt - Added on 15 Dec 2014 to Handle Login UI change - Sanjay Dubey
+	# ${Login_Button}		Set Variable	//div[@class='btn header-btn-blue2 pull-right white login-bt']
+	# ${EXEC_STATUS}	Run Keyword And Return Status	Wait Until Keyword Succeeds    30S      5S       Page Should Contain Element 		${Login_Button}
+	# Run Keyword If		${EXEC_STATUS}==True	Press Key	${Login_Button}		\\13
+	 # :FOR      ${Index}        IN RANGE	1	5
+	 # \	${LoginPage_Exists}		Run Keyword And Return Status	Wait Until Keyword Succeeds    30S      5S	Title Should Be    ${LOGINPAGE}
+	 # \	Run Keyword If		${LoginPage_Exists}==True	Exit For Loop
+	 # \	Run Keyword If		${LoginPage_Exists}==False and ${EXEC_STATUS}==True		Press Key	${Login_Button}		\\13
+	 # \	Sleep	2s
+	# ####### End - Added on 15 Dec 2014 to Handle Login UI change
+	
+	
+	# ${EXEC_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds                     30S          5S               Page Should Contain Element 		${LOGIN_EDIT} 		#//ul[@class='megamenu']//a[@id='pageheader_0_headermenu_0__rptMenu__lnkSection_0']
+	# #Perform Keyboard Action ENTER
+	# Sleep                     5s
+	# ###################################################################
+	# #Set Browser Implicit Wait                             		10s
+	# # For IE Browser, change the Zoom to 100%
+	# Run Keyword If                 '${BROWSER}'=='ie' or '${BROWSER}'=='Internet Explorer'   Execute JavaScript      document.body.style.zoom="100%"
+	# Maximize Browser Window
+	# Run Keyword and continue on failure                      Title Should Be    ${LOGINPAGE}
+	# Input Text                                               ${LOGIN_EDIT}      ${USER_ID}
+	# Input Password                                           ${PASSWORD_EDIT}   ${USER_PASSWORD}	
+		  # #************************
+          # #  Perform Action
+          # #************************    
+		  # Run Keyword If                 	'${BROWSER}'=='ff'       Click Element                     //input[@id='_login']
+		  # ...								ELSE					 Press Key                         ${LOGIN_BTN}                  \\13       
+          # #************************
+          # #  Confirm Action
+          # #************************    
+		  # :FOR      ${Index}        IN RANGE	1	5
+		  # \							Unselect Frame
+          # \                         ${FrameDisplayStatus}			Run Keyword And Return Status	Wait Until Keyword Succeeds		40s		5s	Page Should Contain Element		//iframe[@id='iFrm']
+          # \                         Run Keyword If    				${FrameDisplayStatus}==True     Exit For Loop
+          # \                         ${FrameDisplayStatus}           Run Keyword And Return Status	Page Should Contain Element	   //input[@id='_login']
+		  # \							Run Keyword If                 ('${BROWSER}'=='ff') and (${FrameDisplayStatus}==True)         Click Element                     //input[@id='_login']
+		  # \							Run Keyword If                 ('${BROWSER}'!='ff') and (${FrameDisplayStatus}==True)         Press Key                     //input[@id='_login']		\\13
+		# Unselect Frame
+		# Select Frame                iFrm
+		# ${FrameDisplayStatus}		Run Keyword And Return Status	Wait Until Keyword Succeeds	40s	2s	Page Should Contain Element	//frame[@name='nav']
+		# ${NavFrameSelected}		Run Keyword and Return Status	Select Frame                nav		
+		
+		# :FOR      ${Index}        IN RANGE	1	5
+		# \	Run Keyword If		${NavFrameSelected}==True	Exit For Loop
+		# \	Unselect Frame
+		# \	Wait Until Page Contains Element	//iframe[@id='iFrm']	20
+		# \	Select Frame	//iframe[@id='iFrm']
+		# \	Wait Until Page Contains Element	//frame[@name='nav']	20
+		# \	${NavFrameSelected}		Run Keyword and Return Status	Select Frame	//frame[@name='nav']
+		
+		# ${WinMajorComponent}		Set Variable					//td[@id='tabAppTD']/*[@id='tabAppA']		
+		# ${WinDisplayStatus}			Run Keyword And Return Status	Wait Until Keyword Succeeds	40s	2s	Page Should Contain Element	${WinMajorComponent}
+		# Log							Major Component Display In Classic Main Page Status:\t${WinDisplayStatus}						Warn
+		# ${Title}					Get Title
+		# ${TitleStatus}				Run Keyword And Return Status	Should Be Equal As Strings	${Title}							Dealertrack		
+		# Log							Title Of Classic Site Compare Status\t${TitleStatus}\n\tExpected\tDealertrack\n\tActual\t${Title}	Warn
+		# Unselect Frame
+
+	
+# DealerSwitch	
+	# [Documentation]		This keyword will switch the dealship for testing the Admin test cases.
+    # ${FRAME_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	1s    Page Should Contain Element 	iFrm
+	# Select Frame			iFrm
+	# ${FRAME_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	1s    Page Should Contain Element 	nav
+	# Select Frame			nav
+	# ${ELEMENT_STATUS}		Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	1s    Page Should Contain Element 	//a[@href='DTAdminCommon/Dealer/DlrSwitch/DealerSearch.aspx']
+	
+	# Run Keyword If			${ELEMENT_STATUS}==True				Press Key					  //a[@href='DTAdminCommon/Dealer/DlrSwitch/DealerSearch.aspx']			\\13
+	# ...						ELSE								Fail						  Switch Link Failed To Display So Exiting Test
+	# Unselect Frame
+	# ${FRAME_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	1s    Page Should Contain Element 	iFrm
+	# Select Frame			iFrm
+	# ${FRAME_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	1s    Page Should Contain Element 	main
+	# Select Frame			main
+	# ${PAGE_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	5s    Page Should Contain Element 	//input[@id='BtnSwitch']
+	# Log						Switch Page Display Status:\t${PAGE_STATUS}	
+	# ${EXEC_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds                     60s          10s               Page Should Contain Element 		//input[@id='TxtSwitchDealer']
+	# ${Status}				Switch With Existing Dealer
+	# Run Keyword If						${Status}!=True					Switch With New Dealer
+	
+# Switch With Existing Dealer
+	# ###################################
+	# # Confirm Dealer ID Not Exiting
+	# ###################################
+	# ${Status}				Set Variable		False
+	# ####<Sanjay 19 March 15> it is done for DIO user we already on the correct dealer and Element is not appearing
+	# ${NO_NEED_SWITCH}		Run Keyword and Return Status		Verify Current Dealer Logged on		${PD_DEALER_NUM}
+	# # Run Keyword If		${NO_NEED_SWITCH}		Return From Keyword		True
+	# [Return]	${NO_NEED_SWITCH}
+	# ####
+	# #### Dec 15 added by Sanjay
+	# # ${DealerID}				Wait Until Keyword Succeeds   60s	5s	Get Text	//*[@id='gvDealerCompactView_lblDTDealerId_0']
+	# # ${SearchStatus}			WS_CommonUtil.FindStringInString	${DealerID}		${PD_DEALER_NUM}
+	# # Run Keyword If    		${SearchStatus}!=-1                 Log				Dealer Is Already Existing One		Warn
+	# # ${Status}				Run Keyword If						${SearchStatus}!=-1		Set Variable	True	
+							# # Run Keyword If						${Status}==True			Log 			Dealer ID Already Existing : ${PD_DEALER_NUM}	
+	# # [Return]				${Status}
+	
+# Switch With New Dealer	
+	# Run Keyword If			'${EXEC_STATUS}'=='True'			Input Text						//input[@id='TxtSwitchDealer']					${PD_DEALER_NUM}
+	# ...						ELSE								Fail							Dealer Id Field Display Failed In Deal Switch Do Exiting Test
+		  # #************************
+          # #  Perform Action
+          # #************************   
+		  # ${MajorElement}						Set Variable								//*[@id='gvDealerCompactView_lblDTDealerId_0']
+		  # Press Key								//input[@name='BtnSwitch']					\\13
+		  # Sleep									5s
+		  # ${ButtonDisplayStatus}    			Run Keyword And Return Status     			Run Keyword And Ignore Error	Wait Until Keyword Succeeds        30s	5s			Page Should contain Element	 //input[@id='TxtSwitchDealer']	
+		  # Sleep									10s         
+          # #************************
+          # #  Confirm Action
+          # #************************    
+		  # :FOR      ${Index}        IN RANGE	1	5
+		  # \	Unselect Frame
+		  # \	${FRAME_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	1s    Page Should Contain Element 	iFrm
+		  # \	Select Frame			iFrm
+		  # \	${FRAME_STATUS}			Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	1s    Page Should Contain Element 	main
+		  # \	Select Frame			main
+		  # \					${ButtonDisplayStatus}			Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	10s    Page Should Contain Element 	//*[@id='gvDealerCompactView_lblDTDealerId_0'] 
+		  # \					${DealerID}				Run Keyword If						${ButtonDisplayStatus}==True		Get Text	//*[@id='gvDealerCompactView_lblDTDealerId_0'] 		ELSE	Set Variable	Element Dealer Compect View not Found
+		  # \					Log						${DealerID}							Warn
+		  # \					${SearchStatus}			WS_CommonUtil.FindStringInString	${DealerID}		${PD_DEALER_NUM}
+		  # \             	Run Keyword If    		${SearchStatus}!=-1                 Exit For Loop
+          # \				${TextDisplayStatus}    Run Keyword And Return Status     	Wait Until Keyword Succeeds        	30s	 5s		Page Should contain Element	 //input[@id='TxtSwitchDealer']	
+		  # \			    Run Keyword If			${TextDisplayStatus}==True			Input Text							//input[@id='TxtSwitchDealer']		${PD_DEALER_NUM}
+		  # \				${ButtonDisplayStatus}			Run Keyword And Return Status		Wait Until Keyword Succeeds   30s	10s    Page Should Contain Element 	//input[@name='BtnSwitch'] 
+		  # \				Run Keyword If						${ButtonDisplayStatus}==True	Press Key				//input[@name='BtnSwitch']			\\13
+		  # \				Wait Until Keyword Succeeds        	30s	 5s		Page Should contain Element	 //input[@id='TxtSwitchDealer']	
+		  # \				Wait Until Element is Enabled		//input[@id='TxtSwitchDealer']		30
+          # #************************
+          # #  Trail Failure Check
+          # #************************
+          # ${LoopStatus}            Evaluate     int(${Index}) > 4
+          # Run Keyword If           ${LoopStatus}==True       Fail                   System failed to perform Dealer Switch.\nExpected:\t${PD_DEALER_NUM}\nActual:\t${DealerID}
+	
+		  # Unselect Frame
+	
+# Verify Current Dealer Logged on		[Arguments]		${EXP_DEALERID}
+	# Unselect Frame
+	# Select Frame					iFrm
+	# Sleep		2s
+	# Select Frame					bottom
+	# Sleep		2s
+	# Run Keyword and Continue on Failure		Element Should contain		//font[@class='lastlogon']		${EXP_DEALERID}
+	# Unselect Frame
+	# Sleep	2s
+	# Select Frame					iFrm
+	# Sleep		2s
+	# Select Frame					main
+	
+# Create Request				[Arguments]				${WEBSERVICE}				${EXCELFILE}			${ROWNO}		${SCHEMAFILE}
+	# [Documentation]			This keyword is common for all web services and used to create required request for given excel row no.
+	# #Log						${ROWNO}
+	# # Changing row no as required by Create_Request function
+	# ${ROWNO}= 				Evaluate				${ROWNO}-1
+	# # Calling python function to create request
+	# ${SREQUEST}=	Run Keyword If		${GRID}==False     		WS_CommonUtil.Create_RequestString	       		${WEBSERVICE}	   		${RESOURCE}/Input/${EXCELFILE}		${ROWNO}	${RESOURCE}/WebService				${SCHEMAFILE}	#${RESOURCE}\\Input\\${EXCELFILE}							
+	# ...									ELSE					WS_CommonUtil.Create_RequestString	       		${WEBSERVICE}	   		${RESOURCE}/Input/${EXCELFILE}		${ROWNO}	${RESOURCE}/WebService				${SCHEMAFILE}	# Calling function to create request XML string
+	# [Return]			${SREQUEST}
+	
+# Send Request				[Arguments]				${WEBSERVICE}				${EXCELFILE}			${ROWNO}		${SREQUEST}		  		${USERNAME}		  		${PASSWORD}			${URL}			${SOAPACTION}		
+	# [Documentation]			This keyword is common for all web services and used to send request generated by above kw and for the given excel row no.
+	# #Log				${SREQUEST}
+	# # Changing row no as required by Send_Request function
+	# ${ROWNO}= 				Evaluate				${ROWNO}-1
+	# # Calling python function to send request
+	# ${RESPONSECODE}			${RESPONSETEXT}=		Run Keyword If		${GRID}==False 		WS_CommonUtil.Send_Request       	${RESOURCE}/Input/${EXCELFILE}						${ROWNO}				${WEBSERVICE}					${SREQUEST}		  		${USERNAME}		  		${PASSWORD}			${URL}			${SOAPACTION}		${RESOURCE}/WebService
+	# ...		ELSE		WS_CommonUtil.Send_Request       	${RESOURCE}/Input/${EXCELFILE}						${ROWNO}				${WEBSERVICE}					${SREQUEST}		  		${USERNAME}		  		${PASSWORD}			${URL}			${SOAPACTION}		${RESOURCE}/WebService
+	# # Set variables as test variables as they will be used further by test case
+	# #Set Test Variable		${RESPONSECODE}
+	# #Set Test Variable		${RESPONSETEXT}
+	# [Return]				${RESPONSECODE}			${RESPONSETEXT}
+
+# Send Request With Request XML	[Arguments]		${WEBSERVICE}	${URL}		${SOAP_ACTION}		${XML_REQUEST} 		${USERNAME}	 	${PASSWORD}			
+	# [Documentation]			This keyword is common for all web services and used to send request for given Request XML.
+	
+	# ${RESPONSECODE}			${ERRORTEXT}	${RESPONSETEXT}=		Run Keyword If		${GRID}==False		WS_CommonUtil.Send_Request_WithRequestXML       ${WEBSERVICE}	${URL}	${SOAP_ACTION}	${XML_REQUEST}		${USERNAME}		${PASSWORD}		${RESOURCE}\\WebService
+	# ...		ELSE		WS_CommonUtil.Send_Request_WithRequestXML       ${WEBSERVICE}	${URL}	${SOAP_ACTION}	${XML_REQUEST}		${USERNAME}		${PASSWORD}		${RESOURCE}/WebService
+	# [Return]				${RESPONSECODE}			${ERRORTEXT}	${RESPONSETEXT}	
+
+
+# Get Value OF XML Node			[Arguments]				${TAGNAME}
+	# [Documentation]			This keyword will be used to get required reference id no from response
+	# ${NODEVAL}=				Get Element Text			${RESPONSETEXT}			${TAGNAME}
+	# [Return]				${NODEVAL}
+
+	
+# Get Excel Cell Value			[Arguments]				${EXCELFILE}			${ROWNO}		${COLUMNNAME}
+	# [Documentation]			This keyword is used to return value in excel cell based on row no. and column no. given.
+	# #Log						${ROWNO}
+	# ${ROWNO}= 				Evaluate				${ROWNO}-1
+	# ${EXCELVAL}=		Run Keyword If		${GRID}==False		Get Excel Value			${RESOURCE}\\Input\\${EXCELFILE}			${ROWNO}				${COLUMNNAME}
+	# ...		ELSE		Get Excel Value			${RESOURCE}/Input/${EXCELFILE}			${ROWNO}				${COLUMNNAME}
+	# Set Test Variable		${EXCELVAL}
+	# [Return]				${EXCELVAL}
+	
+	
+# Get Data From Table Cell 	[Arguments]				${TABLE_ID}			${TABLE_ROW}		${TABLE_CLM}
+	# [Documentation]			This keyword returns the data in table on UI based on table id, row no. and column no.
+	# #sleep	2s
+	# Wait Until Page Contains Element            //iframe[@id='iFrm']
+	# Select Frame                                iFrm
+	# Wait Until Page Contains Element            //frame[@name='main']
+	# Select Frame                                main
+	# #sleep 	2s
+	
+	# ${PASS1}=				Run Keyword And Return Status			Get Table Cell			${TABLE_ID}			${TABLE_ROW}		${TABLE_CLM}	
+	# ${CELL_VAL}=			Run Keyword If		${PASS1}			Get Table Cell			${TABLE_ID}			${TABLE_ROW}		${TABLE_CLM}		
+	
+	# Unselect Frame
+	# #sleep 	2s
+	# Set Test Variable		${CELL_VAL}
+	# [Return]				${CELL_VAL}
+	
+# Compare Data		[Arguments]			${VAL1}		${VAL2}		${DATA}
+	# [Documentation]			This keyword compares twu values given and prints the given message if two values are not equal
+	# Should Be Equal As Strings			${VAL1}		${VAL2}		Comparision of ${DATA} failed. Expected value: ${VAL1}. Actual Value: ${VAL2}.		values=False
+
+		
+							
+# Select Partner In Permission Page 		[Arguments]		${LISTBOX_ID}			${ITEM}			${VALUE}
+	# [Documentation]			This keyword selects an item in the Partner Selection Box					
+							
+							# ${STATUS}			Set Variable			${EMPTY}
+							# :For	${LOOP}		IN RANGE	1			5							
+							# \	${STATUS_DISPLAY}	Execute Javascript 	var displayStatus = document.getElementById('${LISTBOX_ID}').style.display; return displayStatus;
+							# \	Sleep					2s
+							# #\	Log						${STATUS_DISPLAY}		Warn
+							# \   ${STATUS}				Run Keyword If			'${STATUS_DISPLAY}'!='${EMPTY}'		Exit For Loop
+							# \	...						ELSE	 Set Variable			True
+							
+							# #${STATUS}			Wait Until Element Display					${LISTBOX_ID}						10			2
+							
+							# Run Keyword If		'${STATUS}'!='True'		Fail	Partner List Box Display In Permission Page Failed So Exiting Test 
+							# :For	${LOOP}		IN RANGE	1			5							
+							# \	Execute Javascript 	document.getElementById('${LISTBOX_ID}').value = '${ITEM}';
+							# \	Sleep					5s
+							# \   ${FIELD_TEXT}			Execute Javascript 	var listItemDisplayed = window.document.getElementById('${LISTBOX_ID}').value; return listItemDisplayed;
+							# #\   Log						Text Read From List Box : ${FIELD_TEXT}		WARN
+							# \	${FIELD_VALUE}			Run Keyword And Return Status				Should Be Equal As Strings		${FIELD_TEXT.upper()}		${VALUE.upper()}	
+							# \   Run Keyword If			'${FIELD_VALUE}'=='True'					Exit For Loop
+							
+							# Run Keyword If		'${FIELD_VALUE}'!='True'		 #Log				List Item Selection Failed	 
+							# ${STATUS}			Run Keyword If		'${FIELD_VALUE}'=='True'		Set Variable		Pass				
+							# ...					ELSE												Set Variable		Fail
+							
+						    # [Return]					${STATUS}
+	
+# Delete Existing Response File	
+	# [Arguments]		${WORKING_DIR}	 ${FILE_NAME}
+	# WS_CommonUtil.Delete_Existing_Response_File	 ${WORKING_DIR}		${FILE_NAME}
+	
+
+# ######################
+# # Keyboard Action Functions
+# ######################
+# Perform Keyboard Action ENTER
+	# VirtualKeyBoard.PressKeyBoardKeyEnter
+	# #Log			Enter Action Performed 		WARN
+# Perform Keyboard Action ALT_TAB
+	# VirtualKeyBoard.AltTab
+
+# Perform Keyboard Action TAB
+	# VirtualKeyBoard.PressKeyBoardKeyTab
+	
+# Perform Keyboard Action F1
+	# VirtualKeyBoard.PressKeyBoardKeyF1
+# Perform Keyboard Action F3
+	# VirtualKeyBoard.PressKeyBoardKeyF3
+# Perform Keyboard Action F6
+	# VirtualKeyBoard.PressKeyBoardKeyF6	
+# Perform Keyboard Action F12
+	# VirtualKeyBoard.PressKeyBoardKeyF12
+
+# Perform Keyboard Action Type A
+	# VirtualKeyBoard.PressKeyBoardKeyA
+# Perform Keyboard Action Type B
+	# VirtualKeyBoard.PressKeyBoardKeyB
+# Perform Keyboard Action Type C
+	# VirtualKeyBoard.PressKeyBoardKeyC
+# Perform Keyboard Action Type D
+	# VirtualKeyBoard.PressKeyBoardKeyD
+# Perform Keyboard Action Type E
+	# VirtualKeyBoard.PressKeyBoardKeyE
+# Perform Keyboard Action Type F
+	# VirtualKeyBoard.PressKeyBoardKeyF
+# Perform Keyboard Action Type G
+	# VirtualKeyBoard.PressKeyBoardKeyG
+# Perform Keyboard Action Type H
+	# VirtualKeyBoard.PressKeyBoardKeyH
+# Perform Keyboard Action Type I
+	# VirtualKeyBoard.PressKeyBoardKeyI
+	
+
+# Create Log File
+	# [Documentation]			This keyword will create a Log_<Timestamp> folder @ ${RESOURCE}/ExecutionLog and create a text file
+	# ...						named ${TestSuiteName}_ExecutionLog_${timestamp}.txt if ${FLAG_FILE_LOG}==True in thr WS_Variables file
+	# ...						Pre-requisite : Should be called in Suite Setup and ${RESOURCE} should be set
+	# ...						Uses: 		  : Suite Setup		Run Keywords	Test Setup - Duplicate GroupID Scenarios	AND		Create Log File
+	# ...				  		Author        :Sanjay Dubey
+	# ...						Creation Date : 23 Oct 2013
+	# ...						Update Date\By: N/A
+	# #Checking Execution Log folder is there. if not creating it.
+	# ${IsLogDirThere}	Run Keyword and Return Status	Directory Should Not Exist	${RESOURCE}/ExecutionLog
+	# Run Keyword If	${IsLogDirThere}	Create Directory	${RESOURCE}/ExecutionLog
+	# # Creating Log folder and log file with suite name & timestamp
+	# ${cur_time}	Get Time
+	# ${cur_time}	Replace String	${cur_time}	:	-	-1
+	
+	# ${Logs_Folder_Path}		Run Keyword If		${SUITE_COUNT}==0		Set Variable	${RESOURCE}/ExecutionLog/Logs_${cur_time}
+							# ...		ELSE	Set Variable 	${Logs_Folder_Path}
+	# Run Keyword If		${SUITE_COUNT}==0 and ${FLAG_FILE_LOG}==True		Create Directory	${Logs_Folder_Path}
+	
+	# ${TestSuiteName}		Fetch From Right	${SUITE SOURCE}		\\
+	# ${TestSuiteName}		Fetch From Left	${TestSuiteName}		.
+	
+	# ${Logs_Path}	Set Variable	${Logs_Folder_Path}/${TestSuiteName}_ExecutionLog_${cur_time}.txt
+	# Run Keyword If		${FLAG_FILE_LOG}==True		Create File	${Logs_Path}
+	# Set Global Variable	${Logs_Folder_Path}
+	# Set Suite Variable	${Logs_Path}
+	# Set Suite Variable	${Last_Loged_Test}		${Empty}
+	# ${SUITE_COUNT}	Evaluate	${SUITE_COUNT} + 1
+	# Set Global Variable	${SUITE_COUNT}
+	
+
+# Update Log	[Arguments]		${PROBLEM_AREA}		${PROBLEM_DESCRIPTION}		${STATUS}=INFO
+	# [Documentation]			This keyword will Log the info to the log file and console according to value of flags ${FLAG_FILE_LOG} and ${FLAG_CONSOLE_LOG}
+	# ...						So if ${FLAG_CONSOLE_LOG} is False then it should not log anything on console
+	# ...						and if ${FLAG_FILE_LOG} is False then it will not log anything to log file
+	# ...						Arguments     :${PROBLEM_AREA}		To indicate problem area
+	# ...									   ${PROBLEM_DESCRIPTION}	Description of the problem
+	# ...									   ${STATUS}	default value is INFO. it is to indicate the status like WARN/INFO/ERROR/PASS/FAIL/etc
+	# ...						Uses: 		  :Update Log	Validate Nodes Post Node Modification		Response XML : ${RESPONSETEXT}		INFO
+	# ...									  :Update Log	Validate Nodes Post Node Modification		Response Error Text : ${ERRORTEXT}	ERROR
+	# ...				  		Author        :Sanjay Dubey
+	# ...						Creation Date : 23 Oct 2013
+	# ...						Update Date\By: N/A
+	# # Creating String to log to text file if FLAG_FILE_LOG is True
+	# ${String_To_Log}	Run Keyword If	${FLAG_FILE_LOG} and '${TEST NAME}'!='${Last_Loged_Test}'	Set Variable	${\n}>>>> ${TEST NAME} <<<<${\n}->${PROBLEM_AREA}\t${PROBLEM_DESCRIPTION}\t${STATUS}${\n}
+						# ... 	ELSE IF		${FLAG_FILE_LOG} and '${TEST NAME}'=='${Last_Loged_Test}'	Set Variable	->${PROBLEM_AREA}\t${PROBLEM_DESCRIPTION}\t${STATUS}${\n}
+	# Run Keyword If	${FLAG_FILE_LOG}	Append To File	${Logs_Path}	${String_To_Log}
+	# Set Suite Variable	${Last_Loged_Test}		${TEST NAME}
+	# # Logging to console if FLAG_CONSOLE_LOG flag set to True
+	# Run Keyword If	${FLAG_CONSOLE_LOG}		Write To Console	->${PROBLEM_AREA}\t${PROBLEM_DESCRIPTION}\t${STATUS}${\n}
+	
+
+# Test Scenario Setup 	    [Arguments]		${SCENARIO_FILE}		
+	# [Documentation]			This keyword to produce Scenario Dictionary Variable from Scenario Configuartaion file
+	# ...						Keyword Return Dictionary Data
+	# ...						Pre-requisite: N/A
+	# ...						Note: 		 : 
+	# ...						Return Type : Dictionary
+	# ...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...						Creation Date: 2nd Dec 2013
+	# ...						Update Date\By: Manisha Gadekar on 22 Apr 2014
+	
+	# ${CONFIGUARATION_XML}		WS_CommonUtil.Read_From_File_To_String		${RESOURCE}\\Setup\\${SCENARIO_FILE}
+	# ${Scenario Setup} 			Create Dictionary 		Dealer Id			\
+	# Log			${Scenario Setup}
+	# #Dealer#
+	# @{CONFIGUARATION_ITEMS} 	Create List							DearlerId
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Dealer Reference : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Dealer Id			${Data}
+	# Log			${Scenario Setup}
+	# #Partner Id#
+	# @{CONFIGUARATION_ITEMS} 	Create List							PartnerId
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Partner Reference : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Partner Id			${Data}
+	# Log			${Scenario Setup}
+	# #Partner Dealer Id#
+	# @{CONFIGUARATION_ITEMS} 	Create List							PartnerDealerId
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Partner Dealer Id : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Partner Dealer Id			${Data}
+	# Log			${Scenario Setup}
+	
+	# # Version
+	# @{CONFIGUARATION_ITEMS} 	Create List							Version
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Version : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Version			${Data}
+	# Log			${Scenario Setup}
+	
+	# ${VERSION}=		Set Variable		${Data}
+	# Set Suite Variable		${VERSION}
+	
+	# # D2I or non D2I
+	# @{CONFIGUARATION_ITEMS} 	Create List							IS_D2I
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Version : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			IS_D2I			${Data}
+	# Log			${Scenario Setup}
+	
+	# ${IS_D2I}=		Set Variable		${Data}
+	# Set Suite Variable		${IS_D2I}
+	
+	# #InputFolder#
+	# @{CONFIGUARATION_ITEMS} 	Create List							InputFiles
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Input Folder : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Input Files Folder			${Data}
+	# Log			${Scenario Setup}
+	
+	# # #Expected Source#
+	# # @{CONFIGUARATION_ITEMS} 	Create List							EXP_SOURCE
+	# # ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Expected Source : \t${Data}		Warn
+	# # Set To Dictionary		${Scenario Setup}			Expected Source			${Data}
+	# # Log			${Scenario Setup}
+	
+	# # Prequal TRU
+	# @{CONFIGUARATION_ITEMS} 	Create List							PrequalTRU
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				PrequalTRU : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			PrequalTRU			${Data}
+	# Log			${Scenario Setup}
+	
+	# ${PrequalTRU}=		Set Variable		${Data}
+	# Set Suite Variable		${PrequalTRU}
+	
+	# # Credit App TRU
+	# @{CONFIGUARATION_ITEMS} 	Create List							CreditAppTRU
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				CreditAppTRU : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			CreditAppTRU			${Data}
+	# Log			${Scenario Setup}
+	
+	# ${CreditAppTRU}=		Set Variable		${Data}
+	# Set Suite Variable		${CreditAppTRU}
+	
+	# #Email
+	# @{CONFIGUARATION_ITEMS} 	Create List							EmailCheck
+	
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Email : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Email			${Data}
+	# Log			${Scenario Setup}
+	
+	# #PartnerSetting_PerformPrequalification
+	# @{CONFIGUARATION_ITEMS} 	Create List							PartnerSetting_PerformPrequalification
+	
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Email : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			PartnerSetting_PerformPrequalification			${Data}
+	# Log			${Scenario Setup}
+	
+	# ${PartnerSet_PerformPrequal}=		Set Variable		${Data}
+	# Set Suite Variable		${PartnerSet_PerformPrequal}
+	
+	# Set Suite Variable		${Scenario Setup}
+	
+	# ##############################################
+	# # Added on 24th March for use of Dictionary
+	# ##############################################
+	# #####################
+	# # Variables
+	# #####################
+	# ${ListZeroIndex}	Set Variable					0
+	# ${ScanCount}		Set Variable					7
+	# ${ListZeroIndex}	Convert To Integer				${ListZeroIndex}
+	# ${ScanCount}		Convert To Integer				${ScanCount}		
+	# ${PreXMLSubmit-LeadFirstRow-Dictionary}				Create Dictionary					
+	# ${PostXMLSubmit-LeadFirstRow-Dictionary}			Create Dictionary
+	# ${PreXMLSubmitLead}									Create Dictionary
+	# ${PostXMLSubmitScanLead}							Create Dictionary
+	# ${PreXMLSubmitCust}									Create Dictionary
+	# ${PostXMLSubmitScanCust}							Create Dictionary
+	# ${DictionaryOfLeadRowDataDic}						Create Dictionary
+	# ${DictionaryOfCustRowDataDic}						Create Dictionary
+	# Set Suite Variable	${DictionaryOfLeadRowDataDic}	
+	# Set Suite Variable	${DictionaryOfCustRowDataDic}	
+	# Set Suite Variable	${PreXMLSubmitLead}		  		
+	# Set Suite Variable	${PostXMLSubmitScanLead}
+	# Set Suite Variable	${PreXMLSubmitCust}		  		
+	# Set Suite Variable	${PostXMLSubmitScanLead}
+	
+	# Set Suite Variable	${UpdatedValueStatus}		  	${EMPTY}
+	# Set Suite Variable	${ScanCount}
+	# Set Suite Variable	${ListZeroIndex}
+	
+	# [Return]				${Scenario Setup}
+	
+# Test Scenario Setup Lead	    [Arguments]		${SCENARIO_FILE}		
+	# [Documentation]			This keyword to produce Scenario Dictionary Variable from Scenario Configuartaion file
+	# ...						Keyword Return Dictionary Data
+	# ...						Pre-requisite: N/A
+	# ...						Note: 		 : 
+	# ...						Return Type : Dictionary
+	# ...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...						Creation Date: 2nd Dec 2013
+	# ...						Update Date\By: N/A
+
+	# ${CONFIGUARATION_XML}		WS_CommonUtil.Read_From_File_To_String		${RESOURCE}\\Input\\${SCENARIO_FILE}
+	# ${Scenario Setup} 			Create Dictionary 		Dealer Id			\
+	# Log			${Scenario Setup}
+	# #Dealer#
+	# @{CONFIGUARATION_ITEMS} 	Create List							DearlerId
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# # Log				Dealer Reference : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Dealer Id			${Data}
+	# Log			${Scenario Setup}
+	# #Partner Id#
+	# @{CONFIGUARATION_ITEMS} 	Create List							PartnerId
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# Log				Partner Reference : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Partner Id			${Data}
+	# Log			${Scenario Setup}
+	# #Partner Dealer Id#
+	# @{CONFIGUARATION_ITEMS} 	Create List							PartnerDealerId
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# Log				Partner Dealer Id : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Partner Dealer Id			${Data}
+	# Log			${Scenario Setup}
+	
+	# #InputFolder#
+	# @{CONFIGUARATION_ITEMS} 	Create List							InputFiles
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# Log				Input Folder : \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Input Files Folder			${Data}
+	# Log			${Scenario Setup}
+	
+	# # No. of folders
+	# @{CONFIGUARATION_ITEMS} 	Create List							FolderCount
+	# ${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	
+	# Log				Folder Count: \t${Data}		Warn
+	# Set To Dictionary		${Scenario Setup}			Folder Count			${Data}
+	# Log			${Scenario Setup}
+	
+	# :FOR		${CNT}		IN RANGE				1							${Data}+1	
+	# \			${FOLDERNAME}=		Catenate	SEPARATOR=		Folder			${CNT}
+	# \			@{CONFIGUARATION_ITEMS} 	Create List							${FOLDERNAME}
+	# \			${Data}			Return Values From Child Node			${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
+	# \			Log				Folder ${CNT} : \t${Data}		Warn
+	# \			Set To Dictionary		${Scenario Setup}			Folder${CNT}			${Data}
+	
+	# Log			${Scenario Setup}		WARN
+	
+	# Set Suite Variable		${Scenario Setup}
+	
+	# [Return]				${Scenario Setup}
+	
+	
+########################################################################################################################		
+# Get File Names From A Given Directory By Extension 	[Arguments]		${LOCATION} 	${FILEEXTENTION} 
+	# [Documentation]			This keyword to return the list of file names in given directory of certain extention
+	# ...						Keyword Return Dictionary Data
+	# ...						Pre-requisite: N/A
+	# ...						Note: 		 : 
+	# ...						Return Type : Dictionary
+	# ...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...						Creation Date: 3rd Dec 2013
+	# ...						Update Date\By: N/A	
+
+	# @{FILE_ITEMS} 			WS_CommonUtil.RetainFileNamesInDir	${FILES_PATH}		${FILEEXTENTION} 
+	# ${LIST_FILENAMES}		Create List		
+	# :FOR 	${ITEM} 	IN 		@{FILE_ITEMS}
+	# #\	Log		${ITEM}		Warn
+	# \	@{words} 	Run Keyword If		${GRID}==False         Split String 	${ITEM}  \\
+		# ...		ELSE		Split String 	${ITEM}  	/
+	# #\	@{words}	Convert To List	@{words}C
+	# \	${LIST}		Create List		@{words} 	
+	# \	${COUNT}	WS_CommonUtil.GetLengthOfList	${LIST}
+	# \	${COUNT}	Evaluate		${COUNT}-1
+	# \   ${FILE}		Get From List	${LIST}		${COUNT}
+	# #\	Log			${FILE}		Warn
+	# \	Append To List	${LIST_FILENAMES}	${FILE}	
+	
+	# Set Suite Variable		${LIST_FILENAMES}
+	# [Return]				${LIST_FILENAMES}
+
+# CleanUp Admin Profiles
+	# [Documentation]			This Keyword will delete all profiles created the automation
+	# ...				  		Author  : Sanjay Dubey(Sanjay.Dubey@dealtertrack.com)
+	# ...						Creation Date: 13 Feb 2014
+	# ...						Update Date\By: N/A
+	# ${NUM_CREATED_PROFILE}		Get Length		${PROFILES_CREATED_BY_SUITE}
+	# Run Keyword If		${NUM_CREATED_PROFILE} > 0		Run Keywords
+		# ...		Login															AND
+		# ...		DealerSwitch													AND
+		# ...		Navigate to Site Admin											AND
+		# ...		Navigate to PD Profiles											AND
+		# ...		Delete All Profiles Created		AND 	Logout	AND		Close All Browsers
+
+# Get Row with Cell Text		[Arguments]		${TABLE_LOC}		${COL_NUM}		${CELL_TEXT}
+	# [Documentation]			This Keyword will will return row number having the specified text in given column #
+	# ...						Arguments : ${TABLE_LOC} locator of the table, ${COL_NUM} column # to verify text and ${CELL_TEXT} is expected Text
+	# ...						Return : return row number having the specified text in given column #. return -1 if text not found in specified column
+	# ...						Uses : ${row}		Get Row with Cell Text		//table[@id='dgLenders']	1	Ally Financial (ALLY)
+	# ...				  		Author  : Sanjay Dubey(Sanjay.Dubey@dealtertrack.com)
+	# ...						Creation Date: 27 Mar 2014
+	# ...						Update Date\By: N/A
+	
+	# ${ROWS_COUNT}		Get Matching Xpath Count	${TABLE_LOC}/tbody/tr
+	# ${CELL_FOUND}		Set Variable 		False
+	# :For	${I}	IN RANGE		1		${ROWS_COUNT}+1
+	# \	${ColFound}		Run Keyword and return Status	Page should contain Element		${TABLE_LOC}/tbody/tr[${I}]/td[${COL_NUM}]
+	# \		Run Keyword If		${ColFound}==False		continue for loop
+	# \		${I_TEXT}		Get Text		${TABLE_LOC}/tbody/tr[${I}]/td[${COL_NUM}]
+	# \		log		${I_TEXT}
+	# \		${I_TEXT}	Replace String		${I_TEXT}	'	${Empty}
+	# \		${CELL_FOUND}	Run Keyword If		'${I_TEXT}'=='${CELL_TEXT}'		Set Variable	True	ELSE	Set Variable	False
+	# \		Run Keyword If		${CELL_FOUND}		Exit For Loop
+	
+	# Run Keyword If		${CELL_FOUND}		Return From Keyword		${I}
+	# ...		ELSE	Return From Keyword		${-1}
+
+	
+###############################################################	
+######### Keywords moved from PD_CommonKeywords file ##########	
+###############################################################
+# Create and Send Request
+	# [Documentation]   This keyword will create and send the request with the given profile ID to the specified Webservices. It also validates the response depending on the expected response (Valid/Invalid).
+	# [Arguments]			${PROFILE_ID}		${WEBSERVICE}		${FILENAME}		${RW}		${SCHEMAFILE}		${URL}		${SOAPACTION}
+	# # Set the Profile Id in the excel row 
+	# Run Keyword If		${GRID}==False            WS_CommonUtil.ResetResultColumn		${RESOURCE}\\Input\\${FILENAME}		${RW}		ProfileId		${PROFILE_ID}
+	# ...		ELSE		WS_CommonUtil.ResetResultColumn		${RESOURCE}/Input/${FILENAME}		${RW}		ProfileId		${PROFILE_ID}
+	# # Create the Request
+	# ${CREATED_REQUEST}		Create Request		${WEBSERVICE}			${FILENAME}			${RW}		${SCHEMAFILE}
+	# #Log					${CREATED_REQUEST}
+	# Set Test Variable		${CREATED_REQUEST}
+	# # Send the Request
+	# ${RESPONSECODE} 	${RESPONSETEXT}	 		Send Request		${WEBSERVICE}		${FILENAME}		${RW}		${CREATED_REQUEST}		${UNAMEPD}		${PWDPD}		${URLPD}		${SOAPACTION}
+	
+	# ${RW_NO}	 	Evaluate		int(${RW}-${1})
+	# # Validate the Required Nodes
+	# # Run Keyword If 				${RESPONSECODE}==200			Validate Valid Response				${WEBSERVICE}			${FILENAME}			${RW_NO}		${RESPONSETEXT}			${RESPONSECODE}
+	# # Run Keyword If				${RESPONSECODE}!=200			Fail			You have not received expected response.Please verify the Request data.
+	# ${EXP_STATUS}		Get Excel Cell Value				${FILENAME}				${RW}			Valid/Invalid
+	# Run Keyword If 				'${EXP_STATUS}'=='Valid'			Validate Valid Response				${WEBSERVICE}			${FILENAME}			${RW_NO}		${RESPONSETEXT}			${RESPONSECODE}
+	# Run Keyword If				'${EXP_STATUS}'=='Invalid'			Validate Invalid Response					${RESPONSETEXT}					${FILENAME}   	 				${RW_NO}					${RESPONSECODE}		
+	
+	
+# Send The Request		[Arguments]		${PROFILE_ID}		${EXCEL_ROW}
+	# [Documentation]		This Keyword will send the request with the new profile ID created to all the PD services.
+	# ${RW}		Set Variable		${EXCEL_ROW}
+	# Create and Send Request			${PROFILE_ID}		PD_GetPayments						PD_GetPayments.xls								${RW}		PD_GetPayments_Schema.txt						${URLPD}		${SACTIONPDGETPAY}
+	# Create and Send Request			${PROFILE_ID}		PD_GetVehicle						PD_GetVehicles.xls								${RW}		PD_GetVehicles_Schema.txt						${URLPD}		${SACTIONPDGETV}
+	# Create and Send Request			${PROFILE_ID}		PD_GetVehicleByChromeStyleId		PD_GetVehiclesByChromeStyleId.xls				${RW}		PD_GetVehiclesByChromeStyleId_Schema.txt		${URLPD}		${SACTIONPDGETVBYCHROME}
+	# Create and Send Request			${PROFILE_ID}		PD_GetMultiplePayments				PD_GetMultiPayments.xls							${RW}		PD_GetMultiPayments_Schema.txt					${URLPD}		${SACTIONGETMULTIPAY}
+	# Create and Send Request			${PROFILE_ID}		PD_GetMultiVehicle					PD_GetMultipleVehicles.xls						${RW}		PD_GetMultipleVehicles_Schema.txt				${URLPD}		${SACTIONPDGETMULTIV}
+	# Create and Send Request			${PROFILE_ID}		PD_GetMultiVehicleByChrome			PD_GetMultipleVehiclesByChromeStyleId.xls		${RW}		PD_GetMultipleVehiclesByChrome_Schema.txt		${URLPD}		${SACTIONPDGETMULTIVBYCHROME}
+	# Create and Send Request			${PROFILE_ID}		PD_GetIncentivesByALG				PD_GetInchentivesByALGVehicle.xls				${RW}		PD_GetIncentivesByALG_Schema.txt				${URLPD}		${SACTIONPDGETINCBYALG}
+	# Create and Send Request			${PROFILE_ID}		PD_GetIncentivesByChromeMake		PD_GetInchentivesByChromeMake.xls				${RW}		PD_GetIncentivesByChromeMake_Schema.txt			${URLPD}		${SACTIONPDGETINCBYCHMAKE}
+	# Create and Send Request			${PROFILE_ID}		PD_GetRates							PD_GetRates.xls									${RW}		PD_GetRates_Schema.txt							${URLPD}		${SACTIONPDGETRATES}
+	# Create and Send Request			${PROFILE_ID}		PD_GetResiduals						PD_GetResiduals.xls								${RW}		PD_GetResiduals_Schema.txt						${URLPD}		${SACTIONPDGETRESIDUALS}	
+
+
+# Check Node with Value in XML
+	# [Arguments]		${RESPONSETEXT}		${FILENAME}		${ROWNO}		${COLUMN_NODE_NAME}		${COLUMN_NODE_VALUE}
+	# [Documentation]			Verify that Node with the expected text value are present in the XML and return the index of the Node occurrence.
+	# ...						Pre-requisite : N/A
+	# ...						Note: 		  : N/A
+	# ...				  		Author        : Purva Wakode (Purva.Wakode@dealtertrack.com)
+	# ...						Creation Date : 5 Aug 2013
+	# ...						Update Date\By: N/A
+	# # Get the Name of Node to be searched in response xml
+	# ${NODE_NAME}		Run Keyword If		${GRID}==False		Get Excel Value		${RESOURCE}\\Input\\${FILENAME}		${ROWNO}		${COLUMN_NODE_NAME}
+	# ...		ELSE		Get Excel Value		${RESOURCE}/Input/${FILENAME}		${ROWNO}		${COLUMN_NODE_NAME}
+	# # Check whether node exist in the response xml
+	# Element Should Exist		${RESPONSETEXT}			.//${NODE_NAME}
+	# # Get the expected value of node
+	# ${EXP_VALUE}		Run Keyword If		${GRID}==False		Get Excel Value		${RESOURCE}\\Input\\${FILENAME}		${ROWNO}		${COLUMN_NODE_VALUE}
+	# ...			ELSE		Get Excel Value		${RESOURCE}/Input/${FILENAME}		${ROWNO}		${COLUMN_NODE_VALUE}
+	# # Get the list of Node values
+	# @{ACT_NODE_VALUES}		Get Elements Texts		${RESPONSETEXT}		.//${NODE_NAME}		
+	# # Check whether node with the expected text value is present in the response xml
+	# ${STATUS}		Run Keyword And Return Status		List Should Contain Value		${ACT_NODE_VALUES}		${EXP_VALUE}		The expected value is not present for any of the expected node.
+	# # # Get the index of the occurrence of Node with the expected value when there are multiple nodes
+	# ${EXP_NODE_INDEX}		Run Keyword If		'${STATUS}'=='True'		Get Index From List		${ACT_NODE_VALUES}		${EXP_VALUE}
+	# [Return]		${EXP_NODE_INDEX}		
+
+#######################################
+#  			Accessories 		      #
+#######################################
+# Click Save : Permission Window
+	# Sleep						1s
+	# Execute Javascript			window.document.getElementById('btnSave').disabled  = false;
+	# Sleep						10s
+	# Press Key					//input[@id='btnSave']			\\13
+
+# Fail Scanner	
+	# [Arguments]				${FailureList}		${AreaDesc}	
+	# [Documentation]			To scan list of failures and fail the Keyword or Script. This will be used in multiple failure scenarios
+	# ...						Like field validation of required fields etc.
+	# ...						Keyword Return: N/A
+	# ...						Pre-requisite : N/A
+	# ...						Note: 		  : N/A
+	# ...						Return Type   : N/A
+	# ...				  		Author        : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...						Creation Date : 6th Aug 2013
+	# ...						Update Date\By: N/A
+	# :For 	${ITEM}  	IN 		${FailureList} 
+	# \		${ITEMSIZE}			Get Length				str(${ITEM})
+	# \	Update Log		[Keyword] Fail Scanner		Length of each Item : ${ITEMSIZE}
+	# \		${FOUND}			Run Keyword If			${ITEMSIZE}>1			WS_CommonUtil.FindStringInString		str(${ITEM})		 Failed 
+	# #\							Run Keyword If			'${FOUND}'!='None'		Fail					Node Validation Failed For Nodes : ${FailureList}
+	# \							Run Keyword If			'${FOUND}'!='None'		Fail					${AreaDesc} : ${FailureList}
+
+	
+# Sending List Item  [Arguments]		@{BROWSER_MATRIX}		
+	# [Documentation]    Mutiple Browser Closing. Match Browser Index with its respective Brower Type as 
+	# ...				   Firefox needs to use Close Window command instead of like the others use Close Browser
+	# ...				   Input is Dictionary whose Key = Browser Index, Value = Borwser Type (e.g. ff,ie etc)
+	
+						# #@{KEYS}		Get Dictionary Keys	 @{BROWSER_MATRIX}				#Retain the Keys of the Dictionary then loop through the keys to retain values
+						# ${COUNT}	Set Variable		1
+						# :For 	${ITEM} 	IN 	  @{BROWSER_MATRIX}								#Note: Key is also representing Browser Index, which is used in Switch statement
+						# \		${COUNT}	Evaluate	${COUNT}+1
+	
+# Search Child Nodes in Parent Node String
+	# [Documentation]			Search the list of child node value pair in the particular parent node and return the Boolean Value
+	# ...						Keyword Return: True/False
+	# ...						Pre-requisite : N/A
+	# ...						Note: 		  : N/A
+	# ...						Return Type   : Boolean Value
+	# ...				  		Author        : Purva Wakode (Purva.Wakode@dealtertrack.com)
+	# ...						Creation Date : 12 Aug 2013
+	# ...						Update Date\By: N/A
+	# [Arguments]		${PARENT_NODE_STRING}		${EXPECTED_CHILD_NODES_STRING}
+	# @{CHILD_NODE_LIST}		Split String		${EXPECTED_CHILD_NODES_STRING}
+	# :For 	${NODE}  	IN 		@{CHILD_NODE_LIST}
+	# \		Should Contain		${PARENT_NODE_STRING}		${NODE}
+	
+# Get Parent Node String By Searching the Child nodes
+	# [Documentation]			Search the exact Parent Node when there are multiple nodes of same name (eg. Get Rates, Get Multiple Payment, etc)
+	# ...						by searching the various child nodes in the parent node string and returns the Parent Node string.
+	# ...						Keyword Return: Expected Parent Node string
+	# ...						Pre-requisite : N/A
+	# ...						Note: 		  : Argument "${NODE}" means parent of the Parent Node to be searched.
+	# ...						Return Type   : String
+	# ...				  		Author        : Purva Wakode (Purva.Wakode@dealtertrack.com)
+	# ...						Creation Date : 12 Aug 2013
+	# ...						Update Date\By: N/A
+	
+	# [Arguments]		${XML_RESPONSE}		${NODE}		${EXPECTED_CHILD_NODES_STRING}
+	# @{ELEMENTS}		Get Elements		${XML_RESPONSE}		.//${NODE}
+	# ${COUNT}		Get Length			${ELEMENTS}
+	# :FOR		${ELEMENT}		IN		@{ELEMENTS}   
+	# \			${NODE_CONTENT}		Element To String		${ELEMENT}
+	# \			${STATUS}		Run Keyword And Return Status		Search Child Nodes in Parent Node String		${NODE_CONTENT}		${EXPECTED_CHILD_NODES_STRING}
+	# \			Run Keyword If		'${STATUS}'=='True'		Set Test Variable		${EXP_PARENT_NODE_STRING}		${NODE_CONTENT}
+	# \			Run Keyword If		'${STATUS}'=='True'		Set Test Variable		${EXP_PARENT_NODE}		${ELEMENT}
+	# \			Run Keyword If		'${STATUS}'=='True'		Exit For Loop
+	# Run Keyword If		'${STATUS}'=='True'		Log			Expected Parent Node : ${ELEMENT} found in the response.
+	# Run Keyword If		'${STATUS}'=='False'	Fail		Expected Child nodes : ${EXPECTED_CHILD_NODES_STRING} not found in the response.	
+	# [Return]			${EXP_PARENT_NODE_STRING}
+
+
+# Wait For Element Attribute Value		[Arguments]		${ELE_LOC}		${ATTRI_NAME}	${ATTRI_VALUE}	${TIME_OUT}=5
+	# [Documentation]			This keyword will wait for given time for elements attribute value turns to expected value(Not Tested)
+	# ...						Pre-requisite : N/A
+	# ...						Note: 		  : N/A
+	# ...						Arguments: 	  :${ELE_LOC} --> Element's locator, |optional, by default is 5|${TIME_OUT} --> the times in seconds till that keyword wait for.
+	# ...				  		Author        :Sanjay Dubey
+	# ...						Creation Date : 17 Oct 2013
+	# ...						Update Date\By: N/A
+	
+	# :FOR	${i}	IN RANGE	1	${TIME_OUT}+1
+	# \	Sleep		1s
+	# \	${tValue}		Get Element Attribute	${ELE_LOC}@${ATTRI_NAME}
+	# \	Run Keyword If		'${tValue}'=='${ATTRI_VALUE}'		Exit For Loop
+	
+	# Run Keyword If		'${tValue}'!='${ATTRI_VALUE}'		Run Keyword And Continue On Failure		Fail	Element's Attribute[${ATTRI_NAME}] value not turn to Expected value[${ATTRI_VALUE}] in ${TIME_OUT} seconds. Actual value was [${tValue}]
+
+# Look For Node Values
+	# [Arguments]                              ${RESPONSETEXT}               @{FailureList}               
+	# [Documentation]                                  To serach the Reponse XML and look for any values
+	# ...                                                                     Like field validation of required fields etc.
+	# ...                                                                     Keyword Return: True/False
+	# ...                                                                     Pre-requisite : N/A
+	# ...                                                                     Note:                  : N/A
+	# ...                                                                     Return Type   : Boolean
+	# ...                                                                     Author        : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...                                                                     Creation Date : 30th Oct 2013
+	# ...                                                                     Update Date\By: N/A
+	
+	# ${SEARCH_PASS}                   Set Variable      False
+	
+	# :For      ${ITEM}           IN                    @{FailureList} 
+	# \           ${ITEMSIZE}               Get Length                                           ${ITEM}
+	# \           Update Log                  [Keyword] Look for Node Values                                                          Length of each Node Value Item : ${ITEMSIZE}
+	# \           ${FOUND}                   Run Keyword If                                    ${ITEMSIZE}>1                                    WS_CommonUtil.FindStringInString               ${RESPONSETEXT}               ${ITEM}           
+	# \           ${SEARCH_PASS}       Run Keyword If                                    ('${FOUND}'!='-1' and '${SEARCH_PASS}'=='False')                 Set Variable      True
+	# \           ...                                             ELSE IF                                                           ('${FOUND}'=='-1' and '${SEARCH_PASS}'=='False')                 Set Variable      False
+	# \           ...                                             ELSE                                                   Set Variable      True
+	# [Return]                        ${SEARCH_PASS}
+
+# Select Item By Name			[Arguments]		${SELECT_ELEMENT}		${ITEM}
+	# [Documentation]			This Keyword to select an item from Select Box.
+	# ...						Pre-requisite : Element Type has to be select not input or any other
+	# ...						Note: 		  : N/A
+	# ...						Arguments: 	  : Element Xpath and item to be selected
+	# ...				  		Author        : Naveed Hasan (naveed.hasan@dealertrack.com)
+	# ...						Creation Date : 07 Nov 2013
+	# ...						Update Date\By: N/A
+	
+	# ${START}				WS_CommonUtil.FindStringInString		${SELECT_ELEMENT}		'
+	# ${START}				Evaluate		${START}+1
+	# Log						${START}				
+	# ${ID}					WS_CommonUtil.trimFromLeft		${SELECT_ELEMENT}		${START}
+	# Log						${ID}	
+	# ${ID}					WS_CommonUtil.trimFromRight		${ID}		2
+	# Log						${ID}	
+	# Wait Until Keyword Succeeds		30		5		Page Should Contain Element		${SELECT_ELEMENT}
+	# Press Key				${SELECT_ELEMENT}		${ITEM}
+	# Wait Until Element is Enabled		${SELECT_ELEMENT}	60
+	# ${TEXT_SELECT}			Execute JavaScript		var sel = document.getElementById('${ID}'); var selectedText = sel.options[sel.selectedIndex].text; return selectedText; 
+	
+	# :For	${Index}	IN RANGE  1		4
+	# \	${STATUS}		Evaluate				'${TEXT_SELECT}'=='${ITEM}'
+	# \   Run Keyword If	'${STATUS}'=='True'		Exit For Loop
+	# \	...				ELSE					Press Key				${SELECT_ELEMENT}	${ITEM}	
+	# \	Wait Until Element is Enabled		${SELECT_ELEMENT}	60
+	# \	Sleep			5s
+
+# Enter Item In Edit Field	[Arguments]		${EDIT_ELEMENT}		${ITEM}
+	# [Documentation]			This Keyword to do edit field Entry
+	# ...						Pre-requisite : Element Type has to be Input
+	# ...						Note: 		  : N/A
+	# ...						Arguments: 	  : Element Xpath and item to be selected
+	# ...				  		Author        : Naveed Hasan (naveed.hasan@dealertrack.com)
+	# ...						Creation Date : 07 Nov 2013
+	# ...						Update Date\By: N/A
+	
+	# Input Text				${EDIT_ELEMENT}			${ITEM}
+	# ${TEXT_READ}			Get Text				${EDIT_ELEMENT}
+	
+	# :For	${Index}	IN RANGE  1		4
+	# \	${STATUS}		Evaluate				'${TEXT_READ}'=='${ITEM}'
+	# \   Run Keyword If	'${STATUS}'=='True'		Exit For Loop
+	# \	...				ELSE					Input Text				${EDIT_ELEMENT}			${ITEM}
+	# \	Sleep			5s
+
+# Update Node Values By XPath		[Arguments]		${XML_REF}		@{NODES_XPATH_LIST}
+	# [Documentation]			To update the Node Value Pair. Nodes and its new values passed in Dictionary using xpath
+	# ...						Each Node reference shall follow the Xpath format as reach to child node if needed
+	# ...						[Argument] : ${XML_REF} shoule be path of the XML file
+	# ...						@{NODES_XPATH_LIST} shoule be a dictionary containing Kays as xpath and values to be updated
+	# ...						Keyword Return Updated XML
+	# ...						Pre-requisite : N/A
+	# ...						Note: 		  : N/A
+	# ...						Return Type   : String
+	# ...				  		Author        : Sanjay Dubey (Sanjay.dubey@dealtertrack.com)
+	# ...						Creation Date : 22 Jan 2014
+	# ...						Update Date\By: N/A
+
+	# ${XML_CONTENT}	Get Binary File		${XML_REF}
+	# Update Log		[Keyword]:Update Node Values By XPath		XML before updating : ${XML_CONTENT}
+	# ${XML_CONTENT_PARSED}	Parse XML	${XML_CONTENT}
+	# ${XML_PARSE_STRING}		Element To String	${XML_CONTENT_PARSED}
+	# Update Log		[Keyword]:Update Node Values By XPath		Parsed XML is: ${XML_PARSE_STRING}	
+	# @{KEYS}		Get Dictionary Keys	 @{NODES_XPATH_LIST}
+	
+	# :For 	${iKEY}  	IN 		@{KEYS} 
+	# \		${iValue}		Get From Dictionary		@{NODES_XPATH_LIST}		${iKEY}
+	# \		${XML_CONTENT_PARSED}	Set Element Text	${XML_CONTENT_PARSED}		${iValue}		xpath=${iKEY}
+	
+	# ${UPDATED_XML_STRING}		Element To String	${XML_CONTENT_PARSED}
+	# Update Log		[Keyword]:Update Node Values By XPath		Updated XML is : ${UPDATED_XML_STRING}		
+	# [Return]	${UPDATED_XML_STRING}
+
+# Compare Sorted Lists			[Arguments]			${PROFILENAMELIST_ORG}		${PROFILE_LIST}			${HEADER}	${IS_SORT_TYPE_ASC}=True
+	# [Documentation]			This keyword comapres the sorted list from UI and list sorted using built-in keyword.
+	# #Log				${PROFILE_LIST}
+	# # using built in keyword to sort the list
+	# Sort List		${PROFILE_LIST}
+	# Run Keyword If		${IS_SORT_TYPE_ASC}==False		Reverse List	${PROFILE_LIST}
+	# #Log				${PROFILE_LIST}		# sorted list
+	# # set the error message
+	# ${ERROR_MSG}=		Catenate		The string values in the		${HEADER}		column are not placed in alphabetically sorted order. 
+	# # Original and Sorted list ahould be same.
+	# Run Keyword and continue on failure			Lists Should Be Equal		${PROFILENAMELIST_ORG}		${PROFILE_LIST}		${ERROR_MSG}
+
+# Cleanup Test
+	# [Documentation]		Keyword calls the actual keyword to delete profiles created by automation.
+	# Profile Cleanup		${LENDER_NAME}
+	# Logout
+	# #Stop Selenium Server
+# Wrap Up Test
+	# Run Keyword If	'${BROWSER}' == 'ff' or '${BROWSER}' == 'firefox'	Sleep		2s
+	# # Use Close Window only if you're running test on FF locally, otherwise use Close Browser.
+	# #Run Keyword And Ignore Error	Run Keyword If	('${BROWSER}'=='ff' or '${BROWSER}'=='firefox') and ${GRID}!=True	Close Window	ELSE	Close Browser
+	# Run Keyword And Ignore Error	Run Keyword If	('${BROWSER}'=='ff' or '${BROWSER}'=='firefox')		Close Window	ELSE	Close Browser
+	
+# String Replace By	[Arguments]			${ORIGNAL_STRING}	${STRING_TOBEREPLACED}	${STRING_TOBEREPLACEDBY}	${COUNT}
+	# [Documentation]	 To replace string in a string by either count or all
+    # ${RET_VAL}		WS_CommonUtil.StringReplaceWith		${ORIGNAL_STRING}	${STRING_TOBEREPLACED}	${STRING_TOBEREPLACEDBY}	${COUNT}
+	# [Return]		${RET_VAL}
+
+# Page Title Should Be	[Arguments]		${ExpPageTitle}
+	# ${Page Title}		Get Text	//span[@id='tbTitleBar_lblTitle']
+	# Run Keyword if		'${Page Title}'=='${ExpPageTitle}'		Log		Reached at correct page - ${ExpPageTitle}
+	# ...		ELSE	Run Keyword and Continue on Failure		Fail	Should be on ${ExpPageTitle} page but reached at ${Page Title} page
+	
+
+# Page Title Should Contain	[Arguments]		${ExpPageTitle}
+	# ${Page Title}		Get Text	//span[@id='tbTitleBar_lblTitle']
+	# ${IsTitleFound}		Run Keyword and Return Status	Should Contain		${Page Title}	${ExpPageTitle}
+	# Run Keyword if		${IsTitleFound}		Log		Reached at correct page - Page Title ${Page Title} contains ${ExpPageTitle}
+	# ...		ELSE	Run Keyword and Continue on Failure		Fail	Page Title ${Page Title} not containing ${ExpPageTitle}
+	
+# Convert List to String		[Arguments]		${Delimiter}	@{LIST}		
+	# [Documentation]			This will catenate List value with given delemiter and return the string
+	# ...						[Argument] : ${Delimiter} delimiter to insert
+	# ...						Return Type   : String
+	# ...				  		Author        : Sanjay Dubey (Sanjay.dubey@dealtertrack.com)
+	# ...						Creation Date : 12 Feb 2014
+	# ...						Update Date\By: N/A
+	# ${Res_String}	Set Variable	${Empty}
+	# :For	${iNode}	IN	@{LIST}
+	# \	${Res_String}		Catenate	SEPARATOR=${Delimiter}	${Res_String}	${iNode}
+	# ${length}	Get Length	${Res_String}
+	# ${Res_String}	Get SubString	${Res_String}		1
+	# [Return]	${Res_String}
+	
+# Retain Alert Message Text 
+	# [Documentation]			Purpose to scan in 2 sec interval until the Alert Message Pop-up
+	# ...						Keyword Return Alert Message
+	# ...						Pre-requisite: N/A
+	# ...						Note: 		 : This will perform dual action of Accepting Alert and retain message
+	# ...						Return Type : String 	
+	# ...				  		Author  : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...						Creation Date: 26th Feb 2014
+	# ...						Update Date\By: N/A
+	
+	# :FOR	${Counter}		IN RANGE		1		30
+	# \	Sleep				2s
+	# \	${AlertStatus}		BrowserUtil.is_alert_exist
+    # \	${AlertStatus}		Convert To String		${AlertStatus}	
+	# \	${STATUS}			WS_CommonUtil.FindStringInString		${AlertStatus}		False
+	# \	${ALERT_MSG}		Run Keyword If		${STATUS} == -1			Run Keyword			Confirm Action 			
+	# \   Run Keyword If		${STATUS} == -1							Exit For Loop	
+	
+	# Run Keyword If			((${Counter}>3) and (${STATUS}>0))	Fail	Exiting Test As Alert Message Display Failed
+	# #Log		Alert Msg From 2nd Pop-up : ${ALERT_MSG}		Warn
+	# [Return]				${ALERT_MSG}		
+	
+###############################################################	
+######### Keywords moved from FD_UI_Keywords file ##########	
+###############################################################	
+
+# Read XML
+	# [Documentation]			This Keyword parses the XML from Configuration xml
+	# ...						Pre-requisite : N/A
+	# ...						Note: 		  : N/A
+	# ...						Return Type   : N/A
+	# ...				  		Author        : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...						Creation Date : N/A
+	# ...						Update Date\By: N/A
+    # ${XMLDATA}	WS_CommonUtil.Read_From_File_To_String		${RESOURCE}\\Input\\Configuaration.xml
+	# ${doc}    XMLToDictionary.parse		${XMLDATA}
+	# Log		  ${doc} 		Warn
+
+############## Common to FD_UI_KW and PD_UI_KW
+
+# Update Node Values 
+	# [Arguments]				${XML_REF}	@{NODE_LIST}
+	# [Documentation]			To update the Node Value Pair. Nodes and its new values passed in Dictionary
+	# ...						Each Node reference shall follow the Xpath format as reach to child node if needed
+	# ...						Example first/child/grandchild
+	# ...						Keyword Return Updated XML
+	# ...						Pre-requisite : N/A
+	# ...						Note: 		  : Modified for Jenkins
+	# ...						Return Type   : String
+	# ...				  		Author        : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...						Creation Date : 20th Aug 2013
+	# ...						Update Date\By: 16th June 2014
+	
+	# ##########################
+	# #    Local Variables
+	# ##########################	
+					
+	# ##########################
+	# # Read Request XML(Input)
+	# ##########################
+	# Log			Working Directory:\t${RESOURCE}		Warn				
+	# @{XML_REF_TYPE}				Split String	${XML_REF}		\.
+	# Update Log		[Keyword] Update Node Values 		File Name : @{XML_REF_TYPE}[0] \& File Extension : File Name : @{XML_REF_TYPE}[1]
+	# ${TEMP}						Get Length					@{XML_REF_TYPE}[1]
+	# Run Keyword If				${TEMP} > 1		Update Log		[Keyword] Update Node Values			XML File Path : ${RESOURCE}\\Input\\${XML_REF}
+	# ${WS_REQUEST_XML_MOD}		Run Keyword If				((${TEMP} > 1) and ('${GRID}'=='False'))			WS_CommonUtil.Read_From_File_To_String		${RESOURCE}\\Input\\${XML_REF}
+	# ...							ELSE IF						((${TEMP} > 1) and ('${GRID}'!='False'))			WS_CommonUtil.Read_From_File_To_String		${RESOURCE}/Input/${XML_REF}
+	# ...							ELSE						Set Variable		${XML_REF}
+	
+	# Update Log		[Keyword] Update Node Values	XML Values Post Pursing: ${WS_REQUEST_XML_MOD}
+	# Update Log		[Keyword] Update Node Values	Update Node List : ${NODE_LIST}
+	# Update Log		[Keyword] Update Node Values	Request XML Modified : ${WS_REQUEST_XML_MOD}
+	
+	# @{KEYS}		Get Dictionary Keys	 @{NODE_LIST}
+	
+	# :For 	${ITEM}  	IN 		@{KEYS} 
+	# \		${TEMP}		Get From Dictionary		@{NODE_LIST}	${ITEM}
+	# \		${WS_REQUEST_XML_MOD}		WS_CommonUtil.Update_XML_Node_Value			${WS_REQUEST_XML_MOD}	${ITEM}		${TEMP}			 	0
+	# Update Log		[Keyword] Update Node Values	Updated XML : ${WS_REQUEST_XML_MOD}	
+	# ##########################
+	# # Send WSDL Request
+	# ##########################
+	# [Return]	${WS_REQUEST_XML_MOD}
+
+# Validate Nodes : Given XML
+	# [Arguments]				${XML}			@{NODE_LIST}			
+	# [Documentation]			To validate the Node Value Pair in a given XML
+	# ...						Keyword Return Pass/Fail
+	# ...						Pre-requisite : System needs to be in Permission Page
+	# ...						Note: 		  : N/A
+	# ...						Return Type   : Bolean
+	# ...				  		Author        : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...						Creation Date : 20th Nov 2013
+	# ...						Update Date\By: N/A
+	
+	# ##########################
+	# # Local Variables
+	# ##########################
+	# ${EMPTY}					Set Variable				\
+	# ${FailureList} 				Create List
+	# #########################
+	# #   Validation Logic
+	# #########################
+	# Update Log		[Keyword] Validate Nodes : Given XML		List Of Nodes To Validate : ${NODE_LIST}
+	# :For 	${ITEM}  	IN 		@{NODE_LIST} 
+	# \		${FOUND}			WS_CommonUtil.FindStringInString					    ${XML}		${ITEM}
+	# \		${FAIL_DESC}		Run Keyword If			'${FOUND}'=='-1'		 		Catenate 			SEPARATOR=:			Node Failed 		${ITEM}
+	# \							Run Keyword If			'${FAIL_DESC}'!='None'			Append To List		${FailureList}		${FAIL_DESC}
+	# #		Log    ${FailureList}
+	# #########################
+	# #   Keyword Fail Loop
+	# #########################	
+	# ${FAILED_ITEM}				FindStringInString			  str(${FailureList})		Failed
+	# Run Keyword If				'${FAILED_ITEM}'!='-1'		  Fail Scanner		    	${FailureList}		Node Validation Failed For Nodes @{NODE_LIST} in XML : ${XML}
+
+# Validate Nodes : Given Request XML
+	# [Arguments]				${WS_REQUEST_XML}	${WS_URL}	${SOAP_ACTION}		@{NODE_LIST}			
+	# [Documentation]			To validate the Node Value Pair in a Reponse XML where Request XML required
+	# ...						Information (e.g. SOAP ACTION, WS URL etc) for the WS was provided as input.
+	# ...						Keyword Return Pass/Fail
+	# ...						Pre-requisite : System needs to be in Permission Page
+	# ...						Note: 		  : Modified for Jenkins
+	# ...						Return Type   : Bolean
+	# ...				  		Author        : Naveed Hasan (Naveed.Hasan@dealtertrack.com)
+	# ...						Creation Date : 20th Aug 2013
+	# ...						Update Date\By: 17th Jun 2014
+	# ##########################
+	# # Local Variables
+	# ##########################	
+	# ${EMPTY}					Set Variable				\
+	# ${FailureList} 				Create List
+	# ${URL_WS}					Set Variable				${WS_URL}		
+	# ${WS_REF}					Set Variable				${SOAP_ACTION}
+	# ${REQUEST_FILE}				Catenate					SEPARATOR=			${SOAP_ACTION}		RequestXML.txt
+	# ${REPONSE_FILE}				Catenate					SEPARATOR=			${SOAP_ACTION}		ResponseXML.txt
+	# ${SOAP_ACTION}				Set Variable				DealerTrack.Desking.SOA.PaymentServiceV3/IPaymentServiceV3/${SOAP_ACTION}
+	# #${USERNAME}	 				Set Variable				NadaGuides
+	# #${PASSWORD}					Set Variable				uex34mgt
+
+					
+	# #${REQUEST_FILE}				Catenate					${SOAP_ACTION}		RequestXML.txt
+	# Run Keyword If				    ${GRID}==False				WS_CommonUtil.Write_String_To_File							${RESOURCE}\\WebService\\Request\\${REQUEST_FILE}	${WS_REQUEST_XML}
+	# ...								ELSE						WS_CommonUtil.Write_String_To_File							${RESOURCE}/WebService/Request/${REQUEST_FILE}		${WS_REQUEST_XML}
+	# ##########################
+	# # Send WSDL Request
+	# ##########################
+	# Update Log 		[Keyword] Validate Nodes : Given Request XML		Web Service Reference : ${WS_REF}		INFO
+	# Update Log		[Keyword] Validate Nodes : Given Request XML		User Name : ${UNAMEPD}		INFO
+	# Update Log 		[Keyword] Validate Nodes : Given Request XML		Password : ${PWDPD}			INFO
+	# Update Log		[Keyword] Validate Nodes : Given Request XML		Request XML: ${WS_REQUEST_XML}		INFO
+	# ${RESPONSECODE}				${ERRORTEXT}				${RESPONSETEXT}				Send Request With Request XML	${WS_REF} 	${URL_WS}	${SOAP_ACTION}	${WS_REQUEST_XML}	${UNAMEPD}	 ${PWDPD}
+	# Update Log		[Keyword] Validate Nodes : Given Request XML		Response XML : ${RESPONSETEXT}		INFO
+	# Update Log		[Keyword] Validate Nodes : Given Request XML		Error : ${ERRORTEXT}		INFO
+	# #WS_CommonUtil.Write_String_To_File						${RESOURCE}\\WebService\\Response\\${REPONSE_FILE}		${RESPONSETEXT}
+	# Run Keyword If				    ${GRID}==False				WS_CommonUtil.Write_String_To_File						${RESOURCE}\\WebService\\Response\\${REPONSE_FILE}		${RESPONSETEXT}
+	# ...								ELSE						WS_CommonUtil.Write_String_To_File						${RESOURCE}/WebService/Response/${REPONSE_FILE}			${RESPONSETEXT}
+	
+	# Set Test Variable			${RESPONSECODE}
+	# Set Test Variable			${RESPONSETEXT}
+	# Set Test Variable			${ERRORTEXT}
+	
+	# Run Keyword If				'${ERRORTEXT}'!='Nothing'	Fail		${WS_REF} Web Service Returned Error : ${ERRORTEXT} So Exiting Node Validation
+	# #########################
+	# #   Validation Logic
+	# #########################
+	# Update Log		[Keyword] Validate Nodes : Given Request XML		List Of Nodes To Validate : ${NODE_LIST}
+	# :For 	${ITEM}  	IN 		@{NODE_LIST} 
+	# \		${FOUND}			WS_CommonUtil.FindStringInString					    ${RESPONSETEXT}		${ITEM}
+	# \		${FAIL_DESC}		Run Keyword If			'${FOUND}'=='-1'		 		Catenate 			SEPARATOR=:			Node Failed 		${ITEM}
+	# \							Run Keyword If			'${FAIL_DESC}'!='None'			Append To List		${FailureList}		${FAIL_DESC}
+	# #		Log    ${FailureList}
+	# #########################
+	# #   Keyword Fail Loop
+	# #########################	
+	# ${FAILED_ITEM}				FindStringInString			  str(${FailureList})		Failed
+	# Run Keyword If				'${FAILED_ITEM}'!='-1'		  Fail Scanner		    	${FailureList}		Node Validation Failed For Nodes ${SOAP_ACTION} WS
+
+	

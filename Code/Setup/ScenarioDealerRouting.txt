@@ -1,0 +1,15 @@
+<Environment>QA</Environment>
+<LoginURL>https://www.qa.dealertrack.com</LoginURL>
+<User_ID>smokefd</User_ID>
+<USER_PASSWORD>FDAuto123</USER_PASSWORD>
+<SourceDealerID>528683</SourceDealerID>
+<TargetDealerID>100100</TargetDealerID>
+<ProductType>FinanceDriver</ProductType>
+<DealerRoutingService>/Utilities/FdAdmin</DealerRoutingService>
+<PartnerDealerIdCB>5267540</PartnerDealerIdCB>
+<PartnerIdFD>DWR</PartnerIdFD>
+<PartnerDealerIdFD>5286830</PartnerDealerIdFD>
+<DealerIdTPP>5267540</DealerIdTPP>
+<Splunk_UserID>SplunkQA2</Splunk_UserID>
+<Splunk_Password>SplunkQA2</Splunk_Password>
+

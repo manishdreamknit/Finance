@@ -1,0 +1,132 @@
+*** Settings ***
+Documentation	This is a resource file that includes common test variables
+
+*** Variables ***
+#############################
+#Added For Junkins
+#############################
+${GRID}											False
+${SELENIUM_HOST}								192.168.106.19
+${SELENIUM_PORT}								4444
+
+# # ***** PD Common Variables *****
+# ${UNAMEPD}							DTC																			# Username for PD web services
+# ${PWDPD}							h4yw633p
+# ${PD_GETINCENTIVESBYCHROMEMAKE_USER}	DTC	
+# ${PD_GETINCENTIVESBYCHROMEMAKE_PW}	h4yw633p																	# Username for PD web services
+# ${PWDPD}							h4yw633p																	# Password for PD web services
+# #${URLPD}							https://www.qa.dealertrack.com/DeskSOA/PaymentServiceV2.svc					# URL for QA
+# ${URLPD}							https://webservices.qa.dealertrack.com/PaymentDriver/PaymentServiceV2.svc	# URL for DRS-QA       
+
+# # ***** Get Vehicles web service *****
+# ${SACTIONPDGETV}					DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetVehicles
+
+# # ***** Get Vehicles By Chrome Style ID web service *****
+# ${SACTIONPDGETVBYCHROME}			DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetVehiclesByChromeStyleId
+
+# # ***** Get Multiple Vehicles web service *****
+# ${SACTIONPDGETMULTIV}				DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetMultipleVehicles
+
+# # ***** Get Multiple Vehicles By ChromeStyleId web service *****
+# ${SACTIONPDGETMULTIVBYCHROME}		DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetMultipleVehiclesByChromeStyleId
+
+# # ***** Get Incentives By Chrome Make web service *****
+# ${SACTIONPDGETINCBYCHMAKE}			DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetIncentivesByChromeMake
+
+# # ***** Get Incentives By ALG Vehicle web service *****
+# ${SACTIONPDGETINCBYALG}				DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetIncentivesByALGVehicle
+
+# # *** Get Payments ***
+# ${SACTIONPDGETPAY}					DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetPayments
+
+# # *** Get Multiple Payments ***
+# ${SACTIONGETMULTIPAY}				DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetMultiplePayments
+
+# # *** Get Residual ***
+# ${SACTIONPDGETRESIDUALS}			DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetResiduals
+
+# # *** Get Rates ***
+# ${SACTIONPDGETRATES}				DealerTrack.Desking.SOA.PaymentServiceV2/IPaymentServiceV2/GetRates
+
+# # ***** FD - Pre qualification 1.0 *****
+# ${UNAMEFD}							mazfdsvc																	# User name for FD - PreQualification service 1.0
+# ${PWDFD}							mazfdsvc6																	# Password for FD - PreQualification service
+# ${URLFD}							https://services.qa.dealertrack.com
+# ${SACTIONFDPREQ}					/financedriver/v1/applicant/prequalify
+
+# # ***** FD - Pre qualification 1.1 *****
+# ${UNAMEFD11}						gmcfdsvc																	# User name for FD - PreQualification service 1.1
+# ${PWDFD11}							gmcfdsvc6																	# Password for FD - PreQualification service
+# ${URLFD11}							https://webservices.qa.dealertrack.com
+# ${SACTIONFDPREQ11}					/financedriver/V1.1/applicant/prequalify
+
+# # ***** FD - Lead 1.1 *****
+# ${UNAMEFDLEAD11}					ajkfdsvc																	# User name for FD - Lead service
+# ${PWDFDLEAD11}						ajkfdsvc6																	# Password for FD - Lead service
+# #${URLFD11}							https://webservices.qa.dealertrack.com
+# ${SACTIONFDLEAD11}					/financedriver/V1.1/lead/create
+
+# # ***** FD - Credit App 1.1 *****
+# ${UNAMEFDCRAP11}					gmcfdsvc																	# User name for FD - Lead service
+# ${PWDFDCRAP11}						gmcfdsvc6																	# Password for FD - Lead service
+# #${URLFD11}							https://webservices.qa.dealertrack.com
+# ${SACTIONFDCRAP11}					/financedriver/V1.1/application/create
+	
+
+
+# # ***** Credit Bureau 1.1 ******
+# ${UNAMECB11}						eldwebsvc	#eLead																		# User name for Credit Bureau service
+# ${PWDCB11}							wwcm5778ax	#4wsuqs62																	# Password for Credit Bureau service
+# ${URLCB11}							https://webservices.qa.dealertrack.com
+# ${SACTIONFDCB11}					/CreditBureau/V1.1/?redFlagRequest=Yes
+
+
+##########	Login and Dealerswitch	#############
+# ${LOGINURL}       					https://www.qa.dealertrack.com   # To log into the QA website
+# ${LOGINURL}							http://dev.hq.dealertrack.com
+
+${LOGIN_EDIT}     					//input[@class='login--panel-form-input'][@name='username']
+${PASSWORD_EDIT}    				//input[@class='login--panel-form-input'][@name='password']
+
+# ${USER_ID}        					smoketest1
+# ${USER_PASSWORD}    				smoke1PA	
+
+# ${USER_ID}        					cadnall 
+# ${USER_PASSWORD}    				dtdevusr88	
+
+${LOGIN_BTN}      					//input[@name="login"][@class="login--panel-form-button"] 		#_login
+${SEL_TIMEOUT}    					90
+#${BROWSER}        					ie   
+${SEL_SPEED}      					1
+${LOGINPAGE}       					Dealertrack Technologies Login		#Dealertrack Technologies
+${PD_DEALER_NUM}    				185642
+${DEALERSWITCH_EDIT}    			//input[@id='TxtSwitchDealer']
+${STD_WAIT}							15
+${SWITCH_BTN}						BtnSwitch
+
+########### Dealership details ##########
+${DEALERSHIP_NAME}		Honey Booboo-valenti
+${DECISIONDEALER}		670798				# dealership id used for decisioning the Application
+
+############# For Log Logic #########
+${FLAG_FILE_LOG}				True
+${SUITE_COUNT}					0
+${FLAG_CONSOLE_LOG}				True
+@{PROFILES_CREATED_BY_SUITE}
+${PROFILE_CREATED}
+
+########## FD Email settings ##########
+${EMAIL_URL}			http://gmail.com
+${EMAIL_USER}			drsautomation@gmail.com
+${EMAIL_PWD}			drsauto123
+${EMAIL_TITLE}			Outlook Web App
+${DEALERSHIP_NAME}		Honey Booboo-valenti
+${PREQTRU_URL}			https://www.qa.dealertrack.com/Utilities/FinanceDriver/PrequalResponses.aspx
+${APPTRU_URL}			https://www.qa.dealertrack.com/Utilities/FinanceDriver/CreditAppResponses.aspx
+######### For Tracking Test Suite --> Test Case --> Test Status		
+${IS_TRACK_CREATED}		False
+${TestLogRow}		1
+
+########## FD Splunk Settings ##########
+# ${Splunk_UserID}		SplunkQA2
+# ${Splunk_UserPWD}		SplunkQA2

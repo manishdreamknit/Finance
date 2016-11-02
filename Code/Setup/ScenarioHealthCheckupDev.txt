@@ -1,0 +1,15 @@
+<Environment>DEV</Environment>
+<LoginURL>http://dev.hq.dealertrack.com</LoginURL>
+<User_ID>cadnall</User_ID>
+<USER_PASSWORD>dtdevusr88</USER_PASSWORD>
+<SwitchDealership>104334</SwitchDealership>
+<PartnerIdCB>CTX</PartnerIdCB>
+<PartnerDealerIdCB>37215</PartnerDealerIdCB>
+<PartnerIdFD>CTX</PartnerIdFD>
+<PartnerDealerIdFD>37215</PartnerDealerIdFD>
+<LenderIdTPP>BAR</LenderIdTPP>
+<DealerIdTPP>782676</DealerIdTPP>
+<PartnerIdCompliance>CTX</PartnerIdCompliance>
+<DealerIdCompliance>37215</DealerIdCompliance>
+<Splunk_UserID>anup.munot</Splunk_UserID>
+<Splunk_Password>changeme</Splunk_Password>

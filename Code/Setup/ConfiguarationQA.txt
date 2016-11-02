@@ -1,0 +1,157 @@
+<FOLDER>
+<IN>C:\Users\e002128\FD\Phase-III\Request</IN>
+<OUT>C:\Users\e002128\FD\Phase-III\Response</OUT>
+</FOLDER>
+
+<ENVIRONMENT>
+<DEV>http://10.136.10.40</DEV>
+<QA>https://webservices.qa.dealertrack.com</QA>
+<PROD>https://webservices.dealertrack.com</PROD>
+</ENVIRONMENT>
+
+<CREDENTIALS>
+<CB:AMT>
+	<User Name>eldwebsvc</User Name>
+	<Password>wwcm5778ax</Password>
+</CB:AMT>
+<CB:DTS>
+	<User Name>dtswebsvc</User Name>
+	<Password>dts3a24e</Password>
+</CB:DTS>
+<CB:HGR>
+	<User Name>eldwebsvc</User Name>
+	<Password>wwcm5778ax</Password>
+</CB:HGR>
+<CB:IVF>
+	<User Name>ivfwebsvc</User Name>
+	<Password>hlpkm3sv</Password>
+</CB:IVF>
+<CB:ORD>
+	<User Name>eldwebsvc</User Name>
+	<Password>wwcm5778ax</Password>
+</CB:ORD>
+<FD:AJK>
+	<User Name>ajkfdsvc</User Name>
+	<Password>ajkfdsvc6</Password>
+</FD:AJK>
+<FD:BAR><User Name>barpost</User Name>
+	<Password>8ggvqhvp</Password>
+</FD:BAR>
+<FD:DTL>
+	<User Name>dtlwebsvc</User Name>
+	<Password>dtccl6548</Password>
+</FD:DTL>
+<FD:DTS>
+	<User Name>dtswebsvc</User Name>
+	<Password>dts3a24e</Password>
+</FD:DTS>
+<FD:DWR>
+	<User Name>dwrfdsvc</User Name>
+	<Password>dwrfdsvc6</Password>
+</FD:DWR>
+<FD:DXA>
+	<User Name>dxawebsvc</User Name>
+	<Password>dxa655fx</Password>
+</FD:DXA>
+<FD:DXB>
+	<User Name>dxbwebsvc</User Name>
+	<Password>dxb655fx</Password>
+</FD:DXB>
+<FD:DXC>
+	<User Name>dxcwebsvc</User Name>
+	<Password>dxc655fx</Password>
+</FD:DXC>
+<FD:DXD>
+	<User Name>dxdwebsvc</User Name>
+	<Password>dxd655fx</Password>
+</FD:DXD>
+<FD:DXE>
+	<User Name>dxewebsvc</User Name>
+	<Password>dxe655fx</Password>
+</FD:DXE>
+<FD:DXF>
+	<User Name>dxfwebsvc</User Name>
+	<Password>dxf655fx</Password>
+</FD:DXF>
+<FD:DXG>
+	<User Name>dxgwebsvc</User Name>
+	<Password>dxg655fx</Password>
+</FD:DXG>
+<FD:EBS>
+	<User Name>ebswebsvc</User Name>
+	<Password>rnpa6431e1b1</Password>
+</FD:EBS>
+<FD:NOW>
+	<User Name>nowwebsvc</User Name>
+	<Password>nowza2995</Password>
+</FD:NOW>
+<FD:PRX>
+	<User Name>prxwebsvc</User Name>
+	<Password>prx1836web</Password>
+</FD:PRX>
+<FD:SUT>
+	<User Name>sutwebsvc</User Name>
+	<Password>6m8sut13</Password>
+</FD:SUT>
+<TD:EBS>
+	<User Name>Ebswebsvc</User Name>
+	<Password>rnpa6431e1b1</Password>
+</TD:EBS>
+</CREDENTIALS>
+
+<SERVICES>
+<1.0:App>/financedriver/v1/application/create</1.0:App>
+<1.0:CB-RF-No>/creditbureau/?redFlagrequest=No</1.0:CB-RF-No>
+<1.0:CB-RF-Yes>/creditbureau/?redFlagrequest=Yes</1.0:CB-RF-Yes>
+<1.0:GetServiceCBWS>/creditbureau/</1.0:GetServiceCBWS>
+<1.0:Lead>/financedriver/v1/lead/create</1.0:Lead>
+<1.0:PartnerInfo>/financedriver/v1/partnerInfo/getdealers</1.0:PartnerInfo>
+<1.0:Prequalify>/financedriver/v1/applicant/prequalify</1.0:Prequalify>
+<1.1:App>/financedriver/v1.1/application/create</1.1:App>
+<1.1:CB-RF-No>/creditbureau/v1.1/pullBureau?redFlagrequest=No</1.1:CB-RF-No>
+<1.1:CB-RF-No-SN>/creditbureau/v1.1/?redFlagrequest=No</1.1:CB-RF-No-SN>
+<1.1:CB-RF-Yes>/creditbureau/v1.1/pullBureau?redFlagrequest=Yes</1.1:CB-RF-Yes>
+<1.1:CB-RF-Yes-SN>/creditbureau/v1.1/?redFlagrequest=Yes</1.1:CB-RF-Yes-SN>
+<1.1:GetServiceCBWS>/creditbureau/v1.1/</1.1:GetServiceCBWS>
+<1.1:Lead>/financedriver/v1.1/lead/create</1.1:Lead>
+<1.1:PartnerInfo>/financedriver/v1.1/partnerInfo/getdealers</1.1:PartnerInfo>
+<1.1:Prequalify>/financedriver/v1.1/applicant/prequalify</1.1:Prequalify>
+<1.2-1:ADFLead>/FinanceDriver/v1.2/lead/custom/create</1.2-1:ADFLead>
+<1.2-1:App>/financedriver/v1.2/application/create</1.2-1:App>
+<1.2-1:AppTRU>/Utilities/FinanceDriver/CreditAppResponses.aspx</1.2-1:AppTRU>
+<1.2-1:CBTRU>/Utilities/FinanceDriver/CBResponses.aspx</1.2-1:CBTRU>
+<1.2-1:DDF>https://services.qa.dealertrack.com/FDResponseFiles/ADFPlusResponses/</1.2-1:DDF>
+<1.2-1:DealerInfo>/financedriver/v1.2/partnerInfo/QQQ/dealerinfo/9999999</1.2-1:DealerInfo>
+<1.2-1:FDResponse>https://services.qa.dealertrack.com/FDResponseFiles/</1.2-1:FDResponse>
+<1.2-1:GetNowComPdf>/financedriver/v1.2/application/8888888888/partner/PPP/dealer/999999/decision/LLL</1.2-1:GetNowComPdf>
+<1.2-1:GetLeadEmail>/financedriver/v1.2/lead/?partnerid=QQQ&partnerdealerid=999999&email=EMAIL&leadreferencenumber=</1.2-1:GetLeadEmail>
+<1.2-1:GetLeadMD>/FinanceDriver/V1.2/Lead/menuinfo/get?partnerid=QQQ&partnerdealerid=999999&leadreferencenumber=</1.2-1:GetLeadMD>
+<1.2-1:GetLeadPartnerRef>/financedriver/v1.2/lead/?partnerid=QQQ&partnerdealerid=999999&lastname=LASTNAME&partnerreferencenumber=</1.2-1:GetLeadPartnerRef>
+<1.2-1:GetLeadPayCalc>/financedriver/v1.2/lead/paymentinfo/get?partnerid=QQQ&partnerdealerid=999999&leadreferencenumber=</1.2-1:GetLeadPayCalc>
+<1.2-1:GetLeadRegular>/financedriver/v1.2/lead/?partnerid=QQQ&partnerdealerid=999999&lastname=LASTNAME&leadreferencenumber=</1.2-1:GetLeadRegular>
+<1.2-1:GetServiceApp>/financedriver/v1.2/application/</1.2-1:GetServiceApp>
+<1.2-1:GetServicePQ>/financedriver/v1.2/applicant/</1.2-1:GetServicePQ>
+<1.2-1:Lead>/financedriver/v1.2/lead/create</1.2-1:Lead>
+<1.2-1:LeadGeneric>/lead/v1.2/create</1.2-1:LeadGeneric>
+<1.2-1:LeadGenericUpdate>/lead/v1.2/update</1.2-1:LeadGenericUpdate>
+<1.2-1:LeadUpdate1>/financedriver/V1.2/Lead/update</1.2-1:LeadUpdate1>
+<1.2-1:LeadUpdate2>/financeDriver/V1.2/Lead/menuinfo/update</1.2-1:LeadUpdate2>
+<1.2-1:LeadUpdate3>/financeDriver/V1.2/Lead/paymentinfo/update</1.2-1:LeadUpdate3>
+<1.2-1:PartnerInfo>/financedriver/v1.2/partnerInfo/getdealers</1.2-1:PartnerInfo>
+<1.2-1:Prequalify>/financedriver/v1.2/applicant/prequalify</1.2-1:Prequalify>
+<1.2-1:PrequalTRU>/Utilities/FinanceDriver/PrequalResponses.aspx</1.2-1:PrequalTRU>
+<1.2-1:SPLUNK>http://splunkqa.hq.dt.inc:8000/en-US/app/search/search#en-US/app/search/search?earliest=-60m&latest=now&sid=1436519605.639733&q=search%20APPID%20LeadReferenceNumber</1.2-1:SPLUNK>
+<1.2-1:TD-1>https://webservices.qa.dealertrack.com/tradedriver/api/v1/offers/</1.2-1:TD-1>
+<1.2-1:TD-2>https://webservices.qa.dealertrack.com/tradedriver/api/v1/lead/</1.2-1:TD-2>
+<1.2-1:TPP>https://www.qa.dealertrack.com/lender_post/BARAPPSUB.asp</1.2-1:TPP>
+<1.2-D2I:App>/financedriver/v1.2/application/d2i/create</1.2-D2I:App>
+<1.2-D2I:PartnerInfo>/financedriver/v1.2/partnerInfo/getdealers</1.2-D2I:PartnerInfo>
+<1.2-D2I:Prequalify>/financedriver/v1.2/applicant/prequalify</1.2-D2I:Prequalify>
+</SERVICES>
+
+<SOURCE>
+<DWR>Dealerware</DWR>
+<AJK>Auto Jockey</AJK>
+<DXC>Fdd2idxc</DXC>
+<DXE>Fdd2idxe</DXE>
+</SOURCE>

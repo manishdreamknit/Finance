@@ -1,0 +1,46 @@
+*** Settings ***
+Documentation     	The Include file will contain reference to all the Resources pertaining to a product like FD
+...					As long as this include file is called into the Script\Scenario file, the remapping shall have no impact
+...					Omission,Deletion and Addition of a resource file shall be called out\modified here.					
+			 	
+##################
+#	Keywords	 #
+##################
+# # # Resource		  	Keyword/FD_UI_KeyWords.txt  
+# # # Resource		  	../Common/Keyword/WS_KeyWords.txt
+Resource			Code/Keyword/Common_KeyWords.txt
+Resource			Code/Keyword/FD_KeyWords.txt
+
+  
+##################
+#	Objects  	 #
+##################
+# # # Resource		  	Object/FD_UI_Variables.txt 
+# # # Resource		  	../Common/Object/WS_Variables.txt
+Resource			Code/Object/Common_Include.txt
+Resource			Code/Object/Common_Variables.txt
+Resource			Code/Object/FD_Include.txt
+Resource			Code/Object/FD_Variables.txt
+
+##################
+#		Input	 #
+##################
+
+##################
+#		Schema	 #
+##################
+#Resource		  	WebService/FD_CreditApp_Schema_1_1.txt
+#Resource		  	WebService/FD_CreditBureau_Schema_1_1.txt
+#Resource		  	WebService/FD_Lead_Schema_1_1.txt
+#Resource		  	WebService/FD_Prequal_Schema_1_1.txt
+
+##################
+#Shared Resources#
+##################
+# # # Library		  		../Utility/XML.py
+# # # Library		  		../Utility/WS_CommonUtil.py
+Library				Code/Utility/XML.py
+Library				Code/Utility/WS_CommonUtil.py
+#Library		  		../Utility/Screenshot.py
+# # # Resource			../Common/Include.txt
+#Library				Screenshot	${RESOURCE}\\Screenshots

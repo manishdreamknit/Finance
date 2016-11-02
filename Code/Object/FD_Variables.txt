@@ -1,0 +1,79 @@
+*** Settings ***
+Documentation	This is a resource file that includes test variables for FD UI
+
+*** Variables ***
+${BROWSER}									googlechrome												#ie | firefox
+${URL_QA}									https://www.qa.dealertrack.com
+${URL_DEV}									http://dev.hq.dealertrack.com
+${URL_PROD}									https://www.dealertrack.com
+${URL_BASE}									${EMPTY}
+${URL_PREFS_PrequalificationsAndRouting}	/FinanceDriver/DealerPartnerIntegration/PrequalificationAndRouting?IsEditMode=True	
+${URL_PREFS_NotificationsAndMessaging}		/FinanceDriver/DealerPartnerIntegration/NotificationAndMessaging?IsEditMode=True
+${URL_LEADVIEWERACCESS}						/LeadViewerAccess?searchType=DTVAccess						
+${ENVIRONMENT}								${EMPTY}
+${VERSION}									1.2	
+${PARTNERID}								${EMPTY}
+${DEALERID}									${EMPTY}
+${FOLDER_NAME}								${EMPTY}
+${FILENAME}									${EMPTY}
+${SERVICENAME}								${EMPTY}
+${REPLACE_PARTNER}							y
+${REPLACE_DEALER}							y
+${PREQUAL_REF}								${EMPTY}
+${LEAD_REF}									${EMPTY}
+${APP_REF}									${EMPTY}
+${PTR_REF}									${EMPTY}
+${RESPONSECODE}								${EMPTY}	# variable to hold response code
+${RESPONSETEXT}								${EMPTY}	# variable to hold response text
+${ERRORTEXT}								${EMPTY}	# variable to hold response error text
+${HTTPERROR}								${EMPTY}
+
+# ***** Tabs on UI *****
+${APPSNCONTRACT_TAB}				tabAppA														# Apps & Contract tab
+${CUSTARCHIVE_LINK}					CreditArchive												# Customer Archive link
+${CUSTINQ_LINK}						CBINQ														# Customer Inquiry link
+${LEADS_TAB}						tabLeads_SNA												# Leads tab
+#${LEADS_TAB}						tabCRM_SNA												# Leads tab
+#${PREF_LINK}						LeadsPrefCombLeads											# Preferences link
+${PREF_LINK}						LeadsPrefCombCRM											# Preferences link
+${MY_LEADS_LINK}					LeadsMngr													# My Leads link
+#${MY_LEADS_LINK}					LeadsCRM													# My Leads link
+${TRANSMISSION_STATUS_LINK}			AppTrans													# Transmission Status link
+${APP_STATUS_LINK}					AppStatus													# Transmission Status link
+${REPORTS_TAB}						tabReportsA													# Reports tab
+${COMPLIANCE_LINK}					AutoComply													# Compliance link
+${CUSTOMER_FOLDERS}					CustomerFiles												# Customer Folder link
+
+# ***** Preferences *****
+
+# # # ${PARTNER_INT_RADIO}				//input[@id='LeadSetup_PartnerIntegration'][@name='LeadSetup']
+# # # ${CONTINUE_PREF_BTN}				SetLeadSetup
+# # # ${PREF_LABLE}						//lable[@for='Leads_Partner_Integration___Edit_Setup']
+
+
+# ***** Customer Archive *****
+${CUST_ARC_SEARCH_DD}				drpdownSearch
+${SEARCH_TEXT}						textSearchEntry
+${SEARCH_BTN}						btnSearch
+${TABLE_ARCHIVE}					DataGridArchive
+
+# ******* My Lead Page - Prequal Bubble ******
+${PREQUAL_BUB_APP_INCOME_TEXT}				//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[3]/td[1]
+${PREQUAL_BUB_APP_INCOME_VALUE}				//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[3]/td[2]
+${PREQUAL_BUB_APP_INCOME_IMG}				//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[3]/td[3]
+
+${PREQUAL_BUB_APP_TIMEATJOB_TEXT}			//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[2]/td[1]
+${PREQUAL_BUB_APP_TIMEATJOB_VALUE}			//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[2]/td[3]
+${PREQUAL_BUB_APP_TIMEATJOB_IMG}			//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[2]/td[3]
+
+${PREQUAL_BUB_APP_CREDITSCORE_TEXT}			//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[1]/td[1]
+${PREQUAL_BUB_APP_CREDITSCORE_VALUE}		//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[1]/td[2]
+${PREQUAL_BUB_APP_CREDITSCORE_IMG}			//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[1]/td[3]
+
+${PREQUAL_BUB_APP_BANKRUPTCIES_TEXT}		//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[4]/td[1]
+${PREQUAL_BUB_APP_BANKRUPTCIES_VALUE}		//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[4]/td[2]
+${PREQUAL_BUB_APP_BANKRUPTCIES_IMG}			//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[4]/td[3]
+
+${PREQUAL_BUB_APP_TRADELINES_TEXT}			//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[5]/td[1]
+${PREQUAL_BUB_APP_TRADELINES_VALUE}			//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[5]/td[2]
+${PREQUAL_BUB_APP_TRADELINES_IMG}			//html/body/div[3]/div/div[@id='banks']/div[@id='content']/table/tbody/tr[@id='primaryapp']/td//table/tbody/tr[5]/td[3]

@@ -1,0 +1,17 @@
+<Environment>PROD</Environment>
+<LoginURL>https://www.dealertrack.com</LoginURL>
+<User_ID>thutc185</User_ID>
+<USER_PASSWORD>lotus123t</USER_PASSWORD>
+<PartnerIdCB>DTS</PartnerIdCB>
+<PartnerDealerIdCB>144100</PartnerDealerIdCB>
+<PartnerIdFD>DTS</PartnerIdFD>
+<PartnerDealerIdFD>144100</PartnerDealerIdFD>
+<LenderIdTPP>BAR</LenderIdTPP>
+<DealerIdTPP>5267540</DealerIdTPP>
+<PartnerIdCompliance>DTS</PartnerIdCompliance>
+<DealerIdCompliance>144100</DealerIdCompliance>
+<Splunk_UserID>SplunkQA2</Splunk_UserID>
+<Splunk_Password>SplunkQA2</Splunk_Password>
+<DealerIDDecision>790750</DealerIDDecision>
+<DealerIdCOL>100231</DealerIdCOL>
+
