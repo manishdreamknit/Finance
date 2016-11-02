@@ -1,5 +1,10 @@
 new file is added
 new manish
+<<<<<<< HEAD
 gvchcgh
 hngcghcj
 nvcjv
+=======
+
+sync
+>>>>>>> origin/master
