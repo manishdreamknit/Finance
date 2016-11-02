@@ -1,10 +1,9 @@
 		${SCENARIO_FILE}
-
-	Log		Initial Partner Dealer Setup>>>		warn
 	Log 	${SCENARIO_FILE}
 	
 	${CONFIGUARATION_XML}		WS_CommonUtil.Read_From_File_To_String		${RESOURCE}\\Code\\Setup\\${SCENARIO_FILE}
 	${Scenario Setup} 			Create Dictionary 
+manish kuma singh
 	
 	#################################################################
 	@{CONFIGUARATION_ITEMS} 	Create List				PartnerIdCB
