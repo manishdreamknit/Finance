@@ -1,12 +1,4 @@
 		${SCENARIO_FILE}
-	[Documentation]			This keyword to produce Scenario Dictionary Variable from Scenario Configuration file
-	...						Keyword Return Dictionary Data
-	...						Pre-requisite: N/A
-	...						Note: 		 : 
-	...						Return Type : Dictionary
-	...				  		Author  : Manisha Gadekar (Manisha.Gadekar@dealtertrack.com)
-	...						Creation Date: 16th Jun 2015
-	...						Update Date\By: NA
 
 	Log		Initial Partner Dealer Setup>>>		warn
 	Log 	${SCENARIO_FILE}
