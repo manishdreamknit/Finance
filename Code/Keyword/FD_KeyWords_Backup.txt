@@ -1,3 +1,4 @@
+		${SCENARIO_FILE}
 	[Documentation]			This keyword to produce Scenario Dictionary Variable from Scenario Configuration file
 	...						Keyword Return Dictionary Data
 	...						Pre-requisite: N/A
