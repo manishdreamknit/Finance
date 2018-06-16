@@ -131,7 +131,7 @@ Web Service Setup2 	[Arguments]		${Service} 		${PartnerType}		${PARTNERID}		#ret
 	@{CONFIGUARATION_ITEMS} 	Create List									CREDENTIALS		${CREDENTIAL_TYPE}	User Name
 	${Data}			Return Values From Child Node	${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
 	Set To Dictionary		${WS Setup}			User Name		${Data}
-	#Password#
+	#Password##
 	@{CONFIGUARATION_ITEMS} 	Create List									CREDENTIALS		${CREDENTIAL_TYPE}	Password
 	${Data}			Return Values From Child Node	${CONFIGUARATION_XML}	@{CONFIGUARATION_ITEMS}
 	Set To Dictionary		${WS Setup}			Password		${Data}		
