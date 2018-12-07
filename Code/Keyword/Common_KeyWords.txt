@@ -4,7 +4,7 @@ Documentation  This is a resource file for DT web service related keywords
 #Resource				PD_Include.txt
 
 *** Variables ***
-${TOTALROWS}        	${EMPTY}	# variable to store total number of rows in excel file
+${TOTALROWS}        	${EMPTY}	# variable to store total number of rows in excel file manishkumar
 ${ROW}          		${EMPTY}	# counter to iterate through excel rows
 ${EXECUTE}        		${EMPTY}	# variable to store value of execute flag 
 ${REQUEST}				${EMPTY}	# variable to hold request XML string
